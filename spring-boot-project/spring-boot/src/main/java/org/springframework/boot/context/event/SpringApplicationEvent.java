@@ -19,6 +19,7 @@ package org.springframework.boot.context.event;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationEvent;
 
+// ApplicationEvent 事件基类
 /**
  * Base class for {@link ApplicationEvent} related to a {@link SpringApplication}.
  *
@@ -31,7 +32,9 @@ public abstract class SpringApplicationEvent extends ApplicationEvent {
 	private final String[] args;
 
 	public SpringApplicationEvent(SpringApplication application, String[] args) {
+		// 调用 super，设置 application，也就是作为 ApplicationEvent 的 source
 		super(application);
+		// 参数
 		this.args = args;
 	}
 

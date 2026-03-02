@@ -36,8 +36,10 @@ import org.springframework.core.env.Environment;
 @SuppressWarnings("serial")
 public class ApplicationStartingEvent extends SpringApplicationEvent {
 
+	// 启动过程中创建的 DefaultBootstrapContext
 	private final ConfigurableBootstrapContext bootstrapContext;
 
+	// 创建一个 ApplicationStartingEvent 事件，设置 bootstrapContext
 	/**
 	 * Create a new {@link ApplicationStartingEvent} instance.
 	 * @param bootstrapContext the bootstrap context
@@ -46,7 +48,9 @@ public class ApplicationStartingEvent extends SpringApplicationEvent {
 	 */
 	public ApplicationStartingEvent(ConfigurableBootstrapContext bootstrapContext, SpringApplication application,
 			String[] args) {
+		// 调用 super，调用父类设置 application 和 args，application 作为 source
 		super(application, args);
+		// 设置 bootstrapContext = ConfigurableBootstrapContext
 		this.bootstrapContext = bootstrapContext;
 	}
 

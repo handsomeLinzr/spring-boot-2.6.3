@@ -64,6 +64,8 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
 
 	private String[] basePackages;
 
+	// 构造函数 AnnotationConfigServletWebServerApplicationContext
+	// 创建一个 reader 和 一个 scanner
 	/**
 	 * Create a new {@link AnnotationConfigServletWebServerApplicationContext} that needs
 	 * to be populated through {@link #register} calls and then manually

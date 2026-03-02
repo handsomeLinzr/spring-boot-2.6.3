@@ -37,6 +37,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 @FunctionalInterface
 public interface ApplicationContextFactory {
 
+	// 默认的 applicationContext 工厂，用来根据类型创建对应的 application 上下文类型
 	/**
 	 * A default {@link ApplicationContextFactory} implementation that will create an
 	 * appropriate context for the {@link WebApplicationType}.
@@ -45,6 +46,7 @@ public interface ApplicationContextFactory {
 		try {
 			switch (webApplicationType) {
 			case SERVLET:
+				// servlet web 类型的 applicationContext 类型
 				return new AnnotationConfigServletWebServerApplicationContext();
 			case REACTIVE:
 				return new AnnotationConfigReactiveWebServerApplicationContext();

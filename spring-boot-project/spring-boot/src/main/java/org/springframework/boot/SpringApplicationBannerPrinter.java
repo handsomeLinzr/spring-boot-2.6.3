@@ -68,6 +68,7 @@ class SpringApplicationBannerPrinter {
 	}
 
 	Banner print(Environment environment, Class<?> sourceClass, PrintStream out) {
+		// 获取 banner
 		Banner banner = getBanner(environment);
 		banner.printBanner(environment, sourceClass, out);
 		return new PrintedBanner(banner, sourceClass);
@@ -75,43 +76,62 @@ class SpringApplicationBannerPrinter {
 
 	private Banner getBanner(Environment environment) {
 		Banners banners = new Banners();
+		// 获取图片类型的banner
 		banners.addIfNotNull(getImageBanner(environment));
+		// 获取txt类型的banner
 		banners.addIfNotNull(getTextBanner(environment));
+		// 判断是否 banner 有值，不为空
 		if (banners.hasAtLeastOneBanner()) {
+			// 返回 banners
 			return banners;
 		}
+		// 如果没有 banners
 		if (this.fallbackBanner != null) {
 			return this.fallbackBanner;
 		}
+		// 返回默认的 banner，即 SpringBootBanner
+		// Springboot 启动后显示那个，就是这里默认的
 		return DEFAULT_BANNER;
 	}
 
 	private Banner getTextBanner(Environment environment) {
+		// 尝试获取 spring.banner.location 路径下的 banner.txt
 		String location = environment.getProperty(BANNER_LOCATION_PROPERTY, DEFAULT_BANNER_LOCATION);
+		// 获取资源
 		Resource resource = this.resourceLoader.getResource(location);
 		try {
+			// 如果资源存在
 			if (resource.exists() && !resource.getURL().toExternalForm().contains("liquibase-core")) {
+				// 返回这个资源
 				return new ResourceBanner(resource);
 			}
 		}
 		catch (IOException ex) {
 			// Ignore
 		}
+		// 否则返回空
 		return null;
 	}
 
 	private Banner getImageBanner(Environment environment) {
+		// 从环境中获取 banner 的路径，配置是 spring.banner.image.location
 		String location = environment.getProperty(BANNER_IMAGE_LOCATION_PROPERTY);
 		if (StringUtils.hasLength(location)) {
+			// 如果有配置，加载资源
 			Resource resource = this.resourceLoader.getResource(location);
+			// 如果有这个路径对应的资源，则返回 ImageBanner(resource)，没有则返回 null
 			return resource.exists() ? new ImageBanner(resource) : null;
 		}
+		// 遍历图片的类型扩展
 		for (String ext : IMAGE_EXTENSION) {
+			// 获取当前 classpath 下的 banner.xxx 文件
 			Resource resource = this.resourceLoader.getResource("banner." + ext);
+			// 如果有，则返回对应的 ImageBanner
 			if (resource.exists()) {
 				return new ImageBanner(resource);
 			}
 		}
+		// 没有则返回空
 		return null;
 	}
 
@@ -128,6 +148,7 @@ class SpringApplicationBannerPrinter {
 	 */
 	private static class Banners implements Banner {
 
+		// 所有加载到的 banner
 		private final List<Banner> banners = new ArrayList<>();
 
 		void addIfNotNull(Banner banner) {

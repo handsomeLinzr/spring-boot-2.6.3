@@ -21,6 +21,7 @@ import org.springframework.core.env.ConfigurablePropertyResolver;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.web.context.support.StandardServletEnvironment;
 
+// 对应的 servlet-web 环境情况下创建的环境对象
 /**
  * {@link StandardServletEnvironment} for typical use in a typical
  * {@link SpringApplication}.
@@ -28,6 +29,10 @@ import org.springframework.web.context.support.StandardServletEnvironment;
  * @author Phillip Webb
  */
 class ApplicationServletEnvironment extends StandardServletEnvironment {
+
+
+	// 这个对象对应父类的 propertyResolver = ConfigurationPropertySourcesPropertyResolver
+
 
 	@Override
 	protected String doGetActiveProfilesProperty() {
@@ -39,8 +44,11 @@ class ApplicationServletEnvironment extends StandardServletEnvironment {
 		return null;
 	}
 
+	// 重写了 createPropertyResolver 方法， servlet WEB 容器情况启动的环境对象
+	// propertySources 是从 AbstractEnvironment 构造函数传来的空的 MutablePropertySources 对象
 	@Override
 	protected ConfigurablePropertyResolver createPropertyResolver(MutablePropertySources propertySources) {
+		// 创建一个 ConfigurationPropertySourcesPropertyResolver 对象
 		return ConfigurationPropertySources.createPropertyResolver(propertySources);
 	}
 

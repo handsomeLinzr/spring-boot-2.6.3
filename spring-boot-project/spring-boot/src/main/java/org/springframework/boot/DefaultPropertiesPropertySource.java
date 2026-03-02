@@ -107,6 +107,8 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
 		}
 	}
 
+	// 移动 defaultProperties 配置到最后，让这个配置成为最后一个
+	// 作为兜底默认的配置
 	/**
 	 * Move the 'defaultProperties' property source so that it's the last source in the
 	 * given {@link ConfigurableEnvironment}.
@@ -122,8 +124,10 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
 	 * @param propertySources the property sources to update
 	 */
 	public static void moveToEnd(MutablePropertySources propertySources) {
+		// 从环境配置中得到 defaultProperties 配置，并先移除
 		PropertySource<?> propertySource = propertySources.remove(NAME);
 		if (propertySource != null) {
+			// 添加到最后
 			propertySources.addLast(propertySource);
 		}
 	}

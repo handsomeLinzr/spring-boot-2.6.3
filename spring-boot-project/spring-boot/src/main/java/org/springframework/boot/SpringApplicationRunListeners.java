@@ -41,6 +41,8 @@ class SpringApplicationRunListeners {
 
 	private final Log log;
 
+	// 在启动的时候，调用 run 方法，从 SPI 机制中获取所有的 SpringApplicationRunListener 对象并进行实例化
+	// 添加到这里 listeners
 	private final List<SpringApplicationRunListener> listeners;
 
 	private final ApplicationStartup applicationStartup;
@@ -52,7 +54,12 @@ class SpringApplicationRunListeners {
 		this.applicationStartup = applicationStartup;
 	}
 
+	// 启动监听器
 	void starting(ConfigurableBootstrapContext bootstrapContext, Class<?> mainApplicationClass) {
+		// 启动监听
+		// 遍历所有的 SpringApplicationRunListener 对象，调用 starting 方法
+		// 这里会调用到 EventPublishingRunListener 对象，调用 starting 方法，会遍历到所有的监听器
+		// bootstrapContext 是对应前边创建的 DefaultBootstrapContext
 		doWithListeners("spring.boot.application.starting", (listener) -> listener.starting(bootstrapContext),
 				(step) -> {
 					if (mainApplicationClass != null) {
@@ -61,6 +68,7 @@ class SpringApplicationRunListeners {
 				});
 	}
 
+	// 环境准备事件
 	void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
 		doWithListeners("spring.boot.application.environment-prepared",
 				(listener) -> listener.environmentPrepared(bootstrapContext, environment));
@@ -114,13 +122,21 @@ class SpringApplicationRunListeners {
 		doWithListeners(stepName, listenerAction, null);
 	}
 
+	// 监听器处理
+	// stepName 步骤名称
+	// listenerAction 监听的处理过程
+	// stepAction 步骤的处理过程
 	private void doWithListeners(String stepName, Consumer<SpringApplicationRunListener> listenerAction,
 			Consumer<StartupStep> stepAction) {
+		// 处理步骤名称，默认
 		StartupStep step = this.applicationStartup.start(stepName);
+		// SpringApplicationRunListener 遍历监听器，调用 listenerAction 处理过程
 		this.listeners.forEach(listenerAction);
 		if (stepAction != null) {
+			// 判断如果 stepAction 处理步骤不为空，调用 stepAction 处理过程
 			stepAction.accept(step);
 		}
+		// 步骤结束，默认空处理
 		step.end();
 	}
 

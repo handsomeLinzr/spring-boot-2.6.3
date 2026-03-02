@@ -53,17 +53,26 @@ import org.springframework.util.ErrorHandler;
  */
 public class EventPublishingRunListener implements SpringApplicationRunListener, Ordered {
 
+	// 对应的启动类对象，SpringApplication 对象
 	private final SpringApplication application;
 
+	// 启动参数，默认是空
 	private final String[] args;
 
+	// 多播器对象，SimpleApplicationEventMulticaster
+	// 在构造函数的方法中，会加载 application.listeners 所有监听器对象，加载到这个多播器中
 	private final SimpleApplicationEventMulticaster initialMulticaster;
 
 	public EventPublishingRunListener(SpringApplication application, String[] args) {
+		// application 是当前启动类中，SpringApplication 对象
 		this.application = application;
+		// 参数，默认是空
 		this.args = args;
+		// 多播器
 		this.initialMulticaster = new SimpleApplicationEventMulticaster();
+		// 遍历当前 application 中的 listeners，也就是从 SPI 中所有的 ApplicationListener 对象
 		for (ApplicationListener<?> listener : application.getListeners()) {
+			// 添加到多播器中
 			this.initialMulticaster.addApplicationListener(listener);
 		}
 	}
@@ -75,6 +84,10 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 
 	@Override
 	public void starting(ConfigurableBootstrapContext bootstrapContext) {
+		// 创建 ApplicationStartingEvent，传进去 bootstrapContext、application
+		// application 设置到 ApplicationEvent 的 source
+		// bootstrapContext 是对应创建的 DefaultBootstrapContext
+		// 调用 initialMulticaster.multicastEvent 多播器，进行传播 ApplicationStartingEvent 事件给所有的监听器
 		this.initialMulticaster
 				.multicastEvent(new ApplicationStartingEvent(bootstrapContext, this.application, this.args));
 	}

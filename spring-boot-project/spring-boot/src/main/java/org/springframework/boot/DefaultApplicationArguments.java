@@ -33,8 +33,11 @@ import org.springframework.util.Assert;
  */
 public class DefaultApplicationArguments implements ApplicationArguments {
 
+
+	// 从构造函数来
 	private final Source source;
 
+	// 从构造函数来
 	private final String[] args;
 
 	public DefaultApplicationArguments(String... args) {

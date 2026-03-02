@@ -30,8 +30,11 @@ import org.springframework.core.env.PropertySourcesPropertyResolver;
  */
 class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResolver {
 
+	// 构造函数设置
+	// 配置属性
 	private final MutablePropertySources propertySources;
 
+	// 构造函数设置来的
 	private final DefaultResolver defaultResolver;
 
 	ConfigurationPropertySourcesPropertyResolver(MutablePropertySources propertySources) {

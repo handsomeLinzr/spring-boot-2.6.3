@@ -38,6 +38,7 @@ import org.springframework.util.Assert;
  */
 public final class ConfigurationPropertySources {
 
+	// env 对象中添加的一个 PropertySource，具体类型是 SpringConfigurationPropertySources，其中包含了整个 evn 对象的配置
 	/**
 	 * The name of the {@link PropertySource} {@link #attach(Environment) adapter}.
 	 */
@@ -70,6 +71,7 @@ public final class ConfigurationPropertySources {
 		return ATTACHED_PROPERTY_SOURCE_NAME.equals(propertySource.getName());
 	}
 
+	// 附加环境
 	/**
 	 * Attach a {@link ConfigurationPropertySource} support to the specified
 	 * {@link Environment}. Adapts each {@link PropertySource} managed by the environment
@@ -84,13 +86,21 @@ public final class ConfigurationPropertySources {
 	 * @see #get(Environment)
 	 */
 	public static void attach(Environment environment) {
+		// 校验
 		Assert.isInstanceOf(ConfigurableEnvironment.class, environment);
+		// 获取当前环境对象的配置源
 		MutablePropertySources sources = ((ConfigurableEnvironment) environment).getPropertySources();
+		// 获取 “configurationProperties” 名称对应的配置
 		PropertySource<?> attached = getAttached(sources);
+		// 默认 attached = null，没有配置，所以这里返回 true
 		if (attached == null || !isUsingSources(attached, sources)) {
+			// 创建一个 ConfigurationPropertySourcesPropertySource 对象，名称设置为 “configurationProperties”
+			// 对应的 source 是 SpringConfigurationPropertySources，引用了当前环境中得到的配置
+			// 最后赋值给 attached
 			attached = new ConfigurationPropertySourcesPropertySource(ATTACHED_PROPERTY_SOURCE_NAME,
 					new SpringConfigurationPropertySources(sources));
 		}
+		// 替换 configurationProperties
 		sources.remove(ATTACHED_PROPERTY_SOURCE_NAME);
 		sources.addFirst(attached);
 	}
@@ -115,12 +125,15 @@ public final class ConfigurationPropertySources {
 	 */
 	public static Iterable<ConfigurationPropertySource> get(Environment environment) {
 		Assert.isInstanceOf(ConfigurableEnvironment.class, environment);
+		// 获取环境对象的配置源
 		MutablePropertySources sources = ((ConfigurableEnvironment) environment).getPropertySources();
+		// 从配置源中获取 configurationProperties 配置，即前边设置的 attach
 		ConfigurationPropertySourcesPropertySource attached = (ConfigurationPropertySourcesPropertySource) sources
 				.get(ATTACHED_PROPERTY_SOURCE_NAME);
 		if (attached == null) {
 			return from(sources);
 		}
+		// 返回对应的配置源，这里就是当前环境的配置源对象
 		return attached.getSource();
 	}
 

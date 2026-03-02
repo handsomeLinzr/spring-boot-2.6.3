@@ -7,7 +7,7 @@ plugins {
 description = "My Test Module"
 
 application {
-    mainClass = "org.springframework.boot.mytest.MyTestApplication"
+    mainClass = "org.springframework.boot.mytest.Application"
 }
 
 dependencies {

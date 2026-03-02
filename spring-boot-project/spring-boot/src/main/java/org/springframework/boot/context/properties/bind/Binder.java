@@ -523,8 +523,11 @@ public class Binder {
 	 * @since 2.2.0
 	 */
 	public static Binder get(Environment environment, BindHandler defaultBindHandler) {
+		// 获取环境对应的配置源
 		Iterable<ConfigurationPropertySource> sources = ConfigurationPropertySources.get(environment);
+		// 属性替换解析器
 		PropertySourcesPlaceholdersResolver placeholdersResolver = new PropertySourcesPlaceholdersResolver(environment);
+		// 构建一个新的 Binder 对象
 		return new Binder(sources, placeholdersResolver, null, null, defaultBindHandler);
 	}
 
