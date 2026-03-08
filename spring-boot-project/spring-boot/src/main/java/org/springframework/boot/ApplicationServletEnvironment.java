@@ -46,6 +46,7 @@ class ApplicationServletEnvironment extends StandardServletEnvironment {
 
 	// 重写了 createPropertyResolver 方法， servlet WEB 容器情况启动的环境对象
 	// propertySources 是从 AbstractEnvironment 构造函数传来的空的 MutablePropertySources 对象
+	// 触发入口，在 AbstractEnvironment 的构造函数中触发
 	@Override
 	protected ConfigurablePropertyResolver createPropertyResolver(MutablePropertySources propertySources) {
 		// 创建一个 ConfigurationPropertySourcesPropertyResolver 对象

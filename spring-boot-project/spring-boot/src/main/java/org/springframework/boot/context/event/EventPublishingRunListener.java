@@ -63,6 +63,7 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 	// 在构造函数的方法中，会加载 application.listeners 所有监听器对象，加载到这个多播器中
 	private final SimpleApplicationEventMulticaster initialMulticaster;
 
+	// 构造函数，创建的时候会初始化好各个属性和参数
 	public EventPublishingRunListener(SpringApplication application, String[] args) {
 		// application 是当前启动类中，SpringApplication 对象
 		this.application = application;

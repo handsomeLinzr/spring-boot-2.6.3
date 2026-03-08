@@ -51,6 +51,7 @@ public class DelegatingApplicationListener implements ApplicationListener<Applic
 
 	private SimpleApplicationEventMulticaster multicaster;
 
+	// 通用的 ApplicationEvent 事件监听
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ApplicationEnvironmentPreparedEvent) {

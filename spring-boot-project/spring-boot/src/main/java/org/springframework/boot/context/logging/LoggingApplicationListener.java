@@ -164,6 +164,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		SPRING_BOOT_LOGGING_LOGGERS = Collections.unmodifiableMap(loggers);
 	}
 
+	// 支持的事件类型
 	private static final Class<?>[] EVENT_TYPES = { ApplicationStartingEvent.class,
 			ApplicationEnvironmentPreparedEvent.class, ApplicationPreparedEvent.class, ContextClosedEvent.class,
 			ApplicationFailedEvent.class };
@@ -207,6 +208,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 		return false;
 	}
 
+	// 通用的 ApplicationEvent 事件监听
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ApplicationStartingEvent) {

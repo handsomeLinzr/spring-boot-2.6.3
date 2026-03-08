@@ -54,6 +54,7 @@ public class ParentContextCloserApplicationListener
 		this.context = context;
 	}
 
+	// 父容器可用
 	@Override
 	public void onApplicationEvent(ParentContextAvailableEvent event) {
 		maybeInstallListenerInParent(event.getApplicationContext());

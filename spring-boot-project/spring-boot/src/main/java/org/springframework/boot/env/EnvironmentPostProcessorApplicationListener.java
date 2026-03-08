@@ -74,6 +74,7 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
 		this.deferredLogs = deferredLogs;
 	}
 
+	// 支持的事件类型，都是上下文环境的事件
 	@Override
 	public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
 		return ApplicationEnvironmentPreparedEvent.class.isAssignableFrom(eventType)

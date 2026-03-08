@@ -55,6 +55,7 @@ public class FileEncodingApplicationListener
 		return Ordered.LOWEST_PRECEDENCE;
 	}
 
+	// 上下文环境准备事件
 	@Override
 	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
 		ConfigurableEnvironment environment = event.getEnvironment();

@@ -43,6 +43,7 @@ class SpringApplicationRunListeners {
 
 	// 在启动的时候，调用 run 方法，从 SPI 机制中获取所有的 SpringApplicationRunListener 对象并进行实例化
 	// 添加到这里 listeners
+	// 默认是 EventPublishingRunListener
 	private final List<SpringApplicationRunListener> listeners;
 
 	private final ApplicationStartup applicationStartup;

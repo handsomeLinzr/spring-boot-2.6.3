@@ -334,6 +334,7 @@ public class SpringApplication {
 		// 加载所有的 SpringApplicationRunListener 对象并实例化，封装到 SpringApplicationRunListeners 对象返回
 		SpringApplicationRunListeners listeners = getRunListeners(args);
 		// 广播 starting 事件给所有的监听器
+		// 实际上广播出去的事件类型是 ApplicationStartingEvent，source 是 SpringApplication
 		listeners.starting(bootstrapContext, this.mainApplicationClass);
 		try {
 			// 创建参数对象
@@ -347,7 +348,7 @@ public class SpringApplication {
 			// 创建一个 ApplicationContext，Application 上下文
 			// 对应举例 AnnotationConfigServletWebServerApplicationContext
 			context = createApplicationContext();
-			//
+			// 设置启动器
 			context.setApplicationStartup(this.applicationStartup);
 			// 准备上下文处理
 			prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
@@ -500,7 +501,7 @@ public class SpringApplication {
 		Class<?>[] types = new Class<?>[] { SpringApplication.class, String[].class };
 		// 返回封装了 SpringApplicationRunListener 监听器的 SpringApplicationRunListeners 对象
 		return new SpringApplicationRunListeners(logger,
-				// SPI 获取所有的 SpringApplicationRunListener 类型的实例化对象
+				// SPI 获取所有的 SpringApplicationRunListener 类型的实例化对象，这里得到的是 org.springframework.boot.context.event.EventPublishingRunListener
 				// 这里能得到 EventPublishingRunListener 对象
 				// 实例化参数，传进去 this，也就是 SpringApplication
 				getSpringFactoriesInstances(SpringApplicationRunListener.class, types, this, args),
@@ -583,7 +584,7 @@ public class SpringApplication {
 	 */
 	protected void configureEnvironment(ConfigurableEnvironment environment, String[] args) {
 		if (this.addConversionService) {
-			// 设置默认的转换服务=》》ApplicationConversionService
+			// 设置默认的转换服务 =>> ApplicationConversionService
 			// 设置到对应的 propertyResolver.conversionService 上
 			environment.setConversionService(new ApplicationConversionService());
 		}

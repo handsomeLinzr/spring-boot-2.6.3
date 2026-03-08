@@ -55,6 +55,7 @@ public class ApplicationConversionService extends FormattingConversionService {
 
 	private static volatile ApplicationConversionService sharedInstance;
 
+	// 默认 false
 	private final boolean unmodifiable;
 
 	public ApplicationConversionService() {
@@ -66,10 +67,13 @@ public class ApplicationConversionService extends FormattingConversionService {
 	}
 
 	private ApplicationConversionService(StringValueResolver embeddedValueResolver, boolean unmodifiable) {
+		// 默认 embeddedValueResolver = null，所以不会进去这个分支逻辑
 		if (embeddedValueResolver != null) {
 			setEmbeddedValueResolver(embeddedValueResolver);
 		}
+		// 配置
 		configure(this);
+		// 默认 false
 		this.unmodifiable = unmodifiable;
 	}
 
@@ -193,6 +197,7 @@ public class ApplicationConversionService extends FormattingConversionService {
 		return sharedInstance;
 	}
 
+	// 根据给定的格式化器 registry，配置适用于 Springboot 容器大多数情况的格式和转换服务
 	/**
 	 * Configure the given {@link FormatterRegistry} with formatters and converters
 	 * appropriate for most Spring Boot applications.
@@ -202,8 +207,11 @@ public class ApplicationConversionService extends FormattingConversionService {
 	 * ConversionService
 	 */
 	public static void configure(FormatterRegistry registry) {
+		// 给 registry 添加默认的服务转换器
 		DefaultConversionService.addDefaultConverters(registry);
+		// 添加默认的格式化器，包括日期时间类型
 		DefaultFormattingConversionService.addDefaultFormatters(registry);
+		//
 		addApplicationFormatters(registry);
 		addApplicationConverters(registry);
 	}
