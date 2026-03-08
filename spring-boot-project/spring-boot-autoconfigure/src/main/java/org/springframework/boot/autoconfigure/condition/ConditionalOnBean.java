@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.annotation.Conditional;
 
+// Bean 存在的情况下能匹配上
 /**
  * {@link Conditional @Conditional} that only matches when beans meeting all the specified
  * requirements are already contained in the {@link BeanFactory}. All the requirements

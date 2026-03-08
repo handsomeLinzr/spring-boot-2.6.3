@@ -32,6 +32,8 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
+// 定义在 ConditionalOnClass 注解中
+// 最高优先级
 /**
  * {@link Condition} and {@link AutoConfigurationImportFilter} that checks for the
  * presence or absence of specific classes.
@@ -86,48 +88,89 @@ class OnClassCondition extends FilteringSpringBootCondition {
 		}
 	}
 
+	// 解析 metadata 元数据，解析器中的 ConditionalOnClass 和 ConditionalOnMissingClass 注解
+	// 对器中的配置进行校验，并最终得到匹配结果返回
 	@Override
 	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		// 获取当前容器的类加载器
 		ClassLoader classLoader = context.getClassLoader();
+		// 定义一个空的添加信息
 		ConditionMessage matchMessage = ConditionMessage.empty();
+		// 提取当前 metadata 中的所有 ConditionalOnClass 注解的 value 和 name 属性
+		// 返回对应的所有该配置的信息
 		List<String> onClasses = getCandidates(metadata, ConditionalOnClass.class);
+
 		if (onClasses != null) {
+			// 判断是否 onClasses 不为空
+			// 从 onClasses 中匹配出所有不存在的 class
 			List<String> missing = filter(onClasses, ClassNameFilter.MISSING, classLoader);
+			// 如果 missing 不为空，也就是有不存在的 class
 			if (!missing.isEmpty()) {
+				// 返回 ConditionOutcome，封装了 missing，也就是找不到的类
+				// 这里 match 属性是 false，表示匹配不上
 				return ConditionOutcome.noMatch(ConditionMessage.forCondition(ConditionalOnClass.class)
 						.didNotFind("required class", "required classes").items(Style.QUOTE, missing));
 			}
+			// 如果 missing 是空的，也就是所有的 class 都存在
+			// matchMessage 则记录了所有存在的 class
 			matchMessage = matchMessage.andCondition(ConditionalOnClass.class)
 					.found("required class", "required classes")
 					.items(Style.QUOTE, filter(onClasses, ClassNameFilter.PRESENT, classLoader));
 		}
+
+		// 提取当前 metadata 中的所有 ConditionalOnMissingClass 注解的 value 和 name 属性
+		// 封装到 onMissingClasses 中
 		List<String> onMissingClasses = getCandidates(metadata, ConditionalOnMissingClass.class);
 		if (onMissingClasses != null) {
+			// 判断如果 onMissingClasses 不为空
+			// 尝试获取当前 onMissingClasses 中存在的 class
 			List<String> present = filter(onMissingClasses, ClassNameFilter.PRESENT, classLoader);
 			if (!present.isEmpty()) {
+				// 判断如果 present 不为空，也就是 onMissingClasses 中有存在的 class
+				// 直接返回 ConditionOutcome，封装了 onMissingClasses 中存在的 class，match 属性是 false，表示匹配不上
 				return ConditionOutcome.noMatch(ConditionMessage.forCondition(ConditionalOnMissingClass.class)
 						.found("unwanted class", "unwanted classes").items(Style.QUOTE, present));
 			}
+			// 否则，也就是 present 是空的，所有 onMissingClasses 中的类都不存在
+			// 给 matchMessage 添加条件 ConditionalOnMissingClass 记录，并记录上当前 onMissingClasses
 			matchMessage = matchMessage.andCondition(ConditionalOnMissingClass.class)
 					.didNotFind("unwanted class", "unwanted classes")
 					.items(Style.QUOTE, filter(onMissingClasses, ClassNameFilter.MISSING, classLoader));
 		}
+		// 调用 match 对 matchMessage 进行合并返回新的 ConditionOutcome
+		// 这里的 match 是 true，也就是能匹配上
 		return ConditionOutcome.match(matchMessage);
 	}
 
+	/**
+	 * 根据给定的注解类型 annotationType，解析 metadata 中的所有该注解，获取到所有的注解属性
+	 * 并将该注解的所有 value 和 name 属性配置提取，并收集返回
+	 * @param metadata
+	 * @param annotationType
+	 * @return
+	 */
 	private List<String> getCandidates(AnnotatedTypeMetadata metadata, Class<?> annotationType) {
+		// 获取给定注解的属性，封装成一个 MultiValueMap
 		MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(annotationType.getName(), true);
+		// 如果没有，返回 null
 		if (attributes == null) {
 			return null;
 		}
+		// 定义一个 list 对象
 		List<String> candidates = new ArrayList<>();
+		// 获取所有的 attributes.get("value") 到 candidates 中
 		addAll(candidates, attributes.get("value"));
+		// 获取所有的 attributes.get("name") 到 candidates 中
 		addAll(candidates, attributes.get("name"));
+		// 最后返回 candidates，也就是收集了所有 values 和 name 的集合
 		return candidates;
 	}
 
+	// 添加所有 itemsToAdd 配置到 list 中
 	private void addAll(List<String> list, List<Object> itemsToAdd) {
+		// 判断是否 itemsToAdd 不为空
 		if (itemsToAdd != null) {
+			// 遍历 itemsToAdd 所有，添加到 list 中
 			for (Object item : itemsToAdd) {
 				Collections.addAll(list, (String[]) item);
 			}

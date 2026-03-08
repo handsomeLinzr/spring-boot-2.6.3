@@ -70,6 +70,7 @@ public final class ConditionEvaluationReport {
 	private ConditionEvaluationReport() {
 	}
 
+	// 记录匹配结果
 	/**
 	 * Record the occurrence of condition evaluation.
 	 * @param source the source of the condition (class or method name)
@@ -80,10 +81,13 @@ public final class ConditionEvaluationReport {
 		Assert.notNull(source, "Source must not be null");
 		Assert.notNull(condition, "Condition must not be null");
 		Assert.notNull(outcome, "Outcome must not be null");
+		// 先从 unconditionalClasses 中移除 source，也就是类名或者方法名
 		this.unconditionalClasses.remove(source);
+		// 如果 outcomes 中不存在这个 condition，则添加进去一个空的 ConditionAndOutcomes
 		if (!this.outcomes.containsKey(source)) {
 			this.outcomes.put(source, new ConditionAndOutcomes());
 		}
+		// 给这个 ConditionAndOutcomes 添加上当前的 outcome
 		this.outcomes.get(source).add(condition, outcome);
 		this.addedAncestorOutcomes = false;
 	}
@@ -173,6 +177,9 @@ public final class ConditionEvaluationReport {
 		return null;
 	}
 
+	// 从 beanFactory 中获取到 ConditionEvaluationReport 类型的 bean
+	// 如果有则直接获取，如果没有则好常见一个新的 ConditionEvaluationReport
+	// 并注册到 beanFactory 中，对应的 beanName 是 autoConfigurationReport
 	/**
 	 * Obtain a {@link ConditionEvaluationReport} for the specified bean factory.
 	 * @param beanFactory the bean factory

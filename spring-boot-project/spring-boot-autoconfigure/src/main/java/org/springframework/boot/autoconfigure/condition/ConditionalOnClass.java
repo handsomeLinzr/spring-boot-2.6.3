@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Conditional;
 
+// 在 Class 存在的情况下才注册
 /**
  * {@link Conditional @Conditional} that only matches when the specified classes are on
  * the classpath.

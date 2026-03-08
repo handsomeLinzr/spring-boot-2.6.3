@@ -204,6 +204,7 @@ public class SpringApplication {
 
 	private boolean headless = true;
 
+	// 是否注册关闭勾子函数
 	private boolean registerShutdownHook = true;
 
 	// 通过 SPI 机制加载并实例化所有的 ApplicationContextInitializer 对象
@@ -252,6 +253,13 @@ public class SpringApplication {
 		this(null, primarySources);
 	}
 
+	// 1.赋值 resourceLoader，默认 null
+	// 2.赋值 primarySources 属性，为传进来的主类，默认就是当前启动类
+	// 3.推断当前的服务类型，比如 web-servlet 服务，赋值 webApplicationType
+	// 4.SPI机制加载 BootstrapRegistryInitializer，并进行实例化，设置到 bootstrapRegistryInitializers
+	// 5.SPI机制加载 ApplicationContextInitializer，并进行实例化，设置到 initializers
+	// 6.SPI机制加载 ApplicationListener，实例化后赋值 listeners
+	// 7.从当前调用栈推断出 Main 类，设置到 mainApplicationClass
 	/**
 	 * Create a new {@link SpringApplication} instance. The application context will load
 	 * beans from the specified primary sources (see {@link SpringApplication class-level}
@@ -307,6 +315,7 @@ public class SpringApplication {
 		return null;
 	}
 
+	// 启动 applicationContext
 	/**
 	 * Run the Spring application, creating and refreshing a new
 	 * {@link ApplicationContext}.
@@ -492,6 +501,7 @@ public class SpringApplication {
 		// 返回封装了 SpringApplicationRunListener 监听器的 SpringApplicationRunListeners 对象
 		return new SpringApplicationRunListeners(logger,
 				// SPI 获取所有的 SpringApplicationRunListener 类型的实例化对象
+				// 这里能得到 EventPublishingRunListener 对象
 				// 实例化参数，传进去 this，也就是 SpringApplication
 				getSpringFactoriesInstances(SpringApplicationRunListener.class, types, this, args),
 				this.applicationStartup);

@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Conditional;
 
+// 不存在类的情况
 /**
  * {@link Conditional @Conditional} that only matches when the specified classes are not
  * on the classpath.

@@ -21,6 +21,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 
+// 可以获取到 spring.factories 文件中自动装配的 class
+// 此接口旨在允许在自动配置类的字节码被读取之前快速移除这些类
 /**
  * Filter that can be registered in {@code spring.factories} to limit the
  * auto-configuration classes considered. This interface is designed to allow fast removal
