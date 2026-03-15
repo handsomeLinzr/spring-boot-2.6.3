@@ -79,12 +79,16 @@ public class Profiles implements Iterable<String> {
 	 */
 	Profiles(Environment environment, Binder binder, Collection<String> additionalProfiles) {
 		this.groups = binder.bind("spring.profiles.group", STRING_STRINGS_MAP).orElseGet(LinkedMultiValueMap::new);
+		// 配置了激活的文件标识，如 pro
 		this.activeProfiles = expandProfiles(getActivatedProfiles(environment, binder, additionalProfiles));
+		// 默认的配置文件标识，默认是 default
 		this.defaultProfiles = expandProfiles(getDefaultProfiles(environment, binder));
 	}
 
 	private List<String> getActivatedProfiles(Environment environment, Binder binder,
 			Collection<String> additionalProfiles) {
+		// getProfiles(environment, binder, Type.ACTIVE) 获取配置 spring.profiles.active
+		// 最后得到 additionalProfiles + spring.profiles.active 配置的文件
 		return asUniqueItemList(getProfiles(environment, binder, Type.ACTIVE), additionalProfiles);
 	}
 
@@ -92,12 +96,19 @@ public class Profiles implements Iterable<String> {
 		return asUniqueItemList(getProfiles(environment, binder, Type.DEFAULT));
 	}
 
+	/**
+	 * 从环境绑定中，根据 type，获取对应的配置文件标识
+	 */
 	private Collection<String> getProfiles(Environment environment, Binder binder, Type type) {
+		// 从当前环境中获取对应的配置
 		String environmentPropertyValue = environment.getProperty(type.getName());
+		// 没有则返回空，有则去掉空格返回
 		Set<String> environmentPropertyProfiles = (!StringUtils.hasLength(environmentPropertyValue))
 				? Collections.emptySet()
 				: StringUtils.commaDelimitedListToSet(StringUtils.trimAllWhitespace(environmentPropertyValue));
+		// 转 set，去重
 		Set<String> environmentProfiles = new LinkedHashSet<>(Arrays.asList(type.get(environment)));
+		// 绑定到 binder
 		BindResult<Set<String>> boundProfiles = binder.bind(type.getName(), STRING_SET);
 		if (hasProgrammaticallySetProfiles(type, environmentPropertyValue, environmentPropertyProfiles,
 				environmentProfiles)) {
@@ -152,11 +163,13 @@ public class Profiles implements Iterable<String> {
 		return asUniqueItemList(profiles, null);
 	}
 
+	// 将 profiles 和 additional 添加一起，最后返回一个 list
 	private List<String> asUniqueItemList(Collection<String> profiles, Collection<String> additional) {
 		LinkedHashSet<String> uniqueItems = new LinkedHashSet<>();
 		if (!CollectionUtils.isEmpty(additional)) {
 			uniqueItems.addAll(additional);
 		}
+		// 添加 profiles，最后返回
 		uniqueItems.addAll(profiles);
 		return Collections.unmodifiableList(new ArrayList<>(uniqueItems));
 	}
@@ -185,6 +198,7 @@ public class Profiles implements Iterable<String> {
 		return this.defaultProfiles;
 	}
 
+	// 有 activeProfiles 的情况，获取 activeProfiles， 没有则获取 defaultProfiles
 	/**
 	 * Return the accepted profiles.
 	 * @return the accepted profiles
@@ -216,9 +230,11 @@ public class Profiles implements Iterable<String> {
 	 */
 	private enum Type {
 
+		// spring.profiles.active 配置
 		ACTIVE(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME, Environment::getActiveProfiles, true,
 				Collections.emptySet()),
 
+		// spring.profiles.default 配置
 		DEFAULT(AbstractEnvironment.DEFAULT_PROFILES_PROPERTY_NAME, Environment::getDefaultProfiles, false,
 				Collections.singleton("default"));
 

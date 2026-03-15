@@ -43,6 +43,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.util.Assert;
 
+// 配置绑定工具，用于将配置转为对象
 /**
  * A container object which Binds objects from one or more
  * {@link ConfigurationPropertySource ConfigurationPropertySources}.
@@ -387,6 +388,7 @@ public class Binder {
 
 	private <T> Object bindObject(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
 			Context context, boolean allowRecursiveBinding) {
+		// 获取已有的 name 对应的配置
 		ConfigurationProperty property = findProperty(name, target, context);
 		if (property == null && context.depth != 0 && containsNoDescendantOf(context.getSources(), name)) {
 			return null;
@@ -503,6 +505,7 @@ public class Binder {
 		return true;
 	}
 
+	// 根据 evn 环境创建一个 Binder
 	/**
 	 * Create a new {@link Binder} instance from the specified environment.
 	 * @param environment the environment source (must have attached
@@ -525,7 +528,7 @@ public class Binder {
 	public static Binder get(Environment environment, BindHandler defaultBindHandler) {
 		// 获取环境对应的配置源
 		Iterable<ConfigurationPropertySource> sources = ConfigurationPropertySources.get(environment);
-		// 属性替换解析器
+		// 配置源占位符解析器，封装了一个占位符解析器和当前的环境配置源
 		PropertySourcesPlaceholdersResolver placeholdersResolver = new PropertySourcesPlaceholdersResolver(environment);
 		// 构建一个新的 Binder 对象
 		return new Binder(sources, placeholdersResolver, null, null, defaultBindHandler);

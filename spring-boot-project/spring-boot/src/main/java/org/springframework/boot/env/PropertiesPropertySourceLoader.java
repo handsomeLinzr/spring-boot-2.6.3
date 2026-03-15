@@ -44,29 +44,39 @@ public class PropertiesPropertySourceLoader implements PropertySourceLoader {
 		return new String[] { "properties", "xml" };
 	}
 
+	/**
+	 * 加载配置
+	 */
 	@Override
 	public List<PropertySource<?>> load(String name, Resource resource) throws IOException {
+		// 加载 resource，加载成 list 对象
 		List<Map<String, ?>> properties = loadProperties(resource);
 		if (properties.isEmpty()) {
+			// 没有配置，直接返回
 			return Collections.emptyList();
 		}
 		List<PropertySource<?>> propertySources = new ArrayList<>(properties.size());
 		for (int i = 0; i < properties.size(); i++) {
 			String documentNumber = (properties.size() != 1) ? " (document #" + i + ")" : "";
+			// 创建成 OriginTrackedMapPropertySource 类型，添加到 propertySources 中
 			propertySources.add(new OriginTrackedMapPropertySource(name + documentNumber,
 					Collections.unmodifiableMap(properties.get(i)), true));
 		}
 		return propertySources;
 	}
 
+	// 加载 resource 资源
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Map<String, ?>> loadProperties(Resource resource) throws IOException {
+		// 获取文件名称
 		String filename = resource.getFilename();
 		List<Map<String, ?>> result = new ArrayList<>();
 		if (filename != null && filename.endsWith(XML_FILE_EXTENSION)) {
+			// xml 文件解析过程
 			result.add((Map) PropertiesLoaderUtils.loadProperties(resource));
 		}
 		else {
+			// properties 文件解析过程
 			List<Document> documents = new OriginTrackedPropertiesLoader(resource).load();
 			documents.forEach((document) -> result.add(document.asMap()));
 		}

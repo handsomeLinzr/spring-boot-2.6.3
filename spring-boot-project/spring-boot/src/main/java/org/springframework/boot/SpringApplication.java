@@ -208,7 +208,7 @@ public class SpringApplication {
 	private boolean registerShutdownHook = true;
 
 	// 通过 SPI 机制加载并实例化所有的 ApplicationContextInitializer 对象
-	// 在启动的时候进行加载
+	// 在启动的时候进行加载  SharedMetadataReaderFactoryContextInitializer
 	private List<ApplicationContextInitializer<?>> initializers;
 
 	// 加载所有的 ApplicationListener 对象
@@ -221,6 +221,7 @@ public class SpringApplication {
 	// 在启动的时候进行加载和实例化并添加进来
 	private List<BootstrapRegistryInitializer> bootstrapRegistryInitializers;
 
+	// 扩展用，设置额外的 profile 配置文件标识
 	private Set<String> additionalProfiles = Collections.emptySet();
 
 	private boolean allowBeanDefinitionOverriding;
@@ -325,7 +326,8 @@ public class SpringApplication {
 	public ConfigurableApplicationContext run(String... args) {
 		// 记录当前的时间，开始启动的时间
 		long startTime = System.nanoTime();
-		// 创建一个 DefaultBootstrapContext 对象，并执行所有 BootstrapRegistryInitializer 的 initialize 方法
+
+		// 1. 创建一个 DefaultBootstrapContext 对象，并执行所有 BootstrapRegistryInitializer 的 initialize 方法
 		DefaultBootstrapContext bootstrapContext = createBootstrapContext();
 		// 声明 context 对象
 		ConfigurableApplicationContext context = null;
@@ -333,37 +335,46 @@ public class SpringApplication {
 		configureHeadlessProperty();
 		// 加载所有的 SpringApplicationRunListener 对象并实例化，封装到 SpringApplicationRunListeners 对象返回
 		SpringApplicationRunListeners listeners = getRunListeners(args);
-		// 广播 starting 事件给所有的监听器
+
+		// 2.广播 starting 事件给所有的监听器
 		// 实际上广播出去的事件类型是 ApplicationStartingEvent，source 是 SpringApplication
 		listeners.starting(bootstrapContext, this.mainApplicationClass);
 		try {
 			// 创建参数对象
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
-			// 准备环境，将环境绑定到 SpringApplication 中
+
+			// 3.创建环境 environment
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, bootstrapContext, applicationArguments);
 			// 配置忽略的 bean 信息
 			configureIgnoreBeanInfo(environment);
 			// 获取可以打印的 Banner 对象，默认是 SpringBootBanner
 			Banner printedBanner = printBanner(environment);
-			// 创建一个 ApplicationContext，Application 上下文
+
+			// 4.创建一个 ApplicationContext，Application 上下文
 			// 对应举例 AnnotationConfigServletWebServerApplicationContext
 			context = createApplicationContext();
 			// 设置启动器
 			context.setApplicationStartup(this.applicationStartup);
-			// 准备上下文处理
+
+			// 5.准备上下文处理
 			prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
-			// 调用 refresh方法，就来到 Spring 的核心方法 refresh
+
+			// 6.调用 refresh方法，就来到 Spring 的核心方法 refresh
 			refreshContext(context);
+
 			// refresh 方法后置处理
 			afterRefresh(context, applicationArguments);
+
 			// 记录启动耗时
 			Duration timeTakenToStartup = Duration.ofNanos(System.nanoTime() - startTime);
 			if (this.logStartupInfo) {
 				new StartupInfoLogger(this.mainApplicationClass).logStarted(getApplicationLog(), timeTakenToStartup);
 			}
-			// 启动完成，发布事件
+
+			// 7.启动完成，发布事件
 			listeners.started(context, timeTakenToStartup);
-			// 调用 runners
+
+			// 8.调用 runners
 			callRunners(context, applicationArguments);
 		}
 		catch (Throwable ex) {
@@ -395,25 +406,37 @@ public class SpringApplication {
 		return bootstrapContext;
 	}
 
-	// 环境准备
+	// 准备环境
 	private ConfigurableEnvironment prepareEnvironment(SpringApplicationRunListeners listeners,
 			DefaultBootstrapContext bootstrapContext, ApplicationArguments applicationArguments) {
 		// 先创建一个环境对象 ConfigurableEnvironment，根据推断得到的启动服务类型
 		// 如果是普通的 servlet-web 项目，启动的是 ApplicationServletEnvironment
 		// Create and configure the environment
 		ConfigurableEnvironment environment = getOrCreateEnvironment();
-		// 给环境对象添加参数属性，默认没有参数，可以忽略
+
+		// 给环境对象添加参数属性
 		configureEnvironment(environment, applicationArguments.getSourceArgs());
+
 		// 附加环境的适配设置
 		ConfigurationPropertySources.attach(environment);
+
 		// 调用监听器发布环境准备事件
+		// EnvironmentPostProcessorApplicationListener
+		// AnsiOutputApplicationListener
+		// LoggingApplicationListener
+		// BackgroundPreinitializer
+		// DelegatingApplicationListener
+		// FileEncodingApplicationListener
+		// 这里会通过监听器，最后调用并读取 application.yml 配置
 		listeners.environmentPrepared(bootstrapContext, environment);
+
 		// 将 defaultProperties 对于的配置放到环境配置的最后一个，作为兜底默认配置
 		DefaultPropertiesPropertySource.moveToEnd(environment);
 		Assert.state(!environment.containsProperty("spring.main.environment-prefix"),
 				"Environment prefix cannot be set via properties.");
 		// 绑定环境到 SpringApplication，也就是 Spring 上下文
 		bindToSpringApplication(environment);
+
 		if (!this.isCustomEnvironment) {
 			// 环境对象装换，根据对应的服务类型，转换成对应类型的环境对象
 			// 一般是不需要转换，因为本身环境对象的类型就是根据服务类型推送后创建
@@ -449,6 +472,7 @@ public class SpringApplication {
 		}
 	}
 
+	// 准备上下文容器
 	private void prepareContext(DefaultBootstrapContext bootstrapContext, ConfigurableApplicationContext context,
 			ConfigurableEnvironment environment, SpringApplicationRunListeners listeners,
 			ApplicationArguments applicationArguments, Banner printedBanner) {
@@ -586,10 +610,14 @@ public class SpringApplication {
 		if (this.addConversionService) {
 			// 设置默认的转换服务 =>> ApplicationConversionService
 			// 设置到对应的 propertyResolver.conversionService 上
+			// 简而言之，就是这只一系列的常用转换器和格式化器
 			environment.setConversionService(new ApplicationConversionService());
 		}
+
 		// 配置参数
 		configurePropertySources(environment, args);
+
+		// 配置对应的文件，默认空实现
 		configureProfiles(environment, args);
 	}
 
@@ -1172,6 +1200,7 @@ public class SpringApplication {
 		}
 	}
 
+	// 设置额外的配置文件标识，加载配置的时候用到
 	/**
 	 * Set additional profile values to use (on top of those set in system or command line
 	 * properties).
@@ -1181,6 +1210,7 @@ public class SpringApplication {
 		this.additionalProfiles = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(profiles)));
 	}
 
+	// 额外的配置文件标识，扩展用
 	/**
 	 * Return an immutable set of any additional profiles in use.
 	 * @return the additional profiles

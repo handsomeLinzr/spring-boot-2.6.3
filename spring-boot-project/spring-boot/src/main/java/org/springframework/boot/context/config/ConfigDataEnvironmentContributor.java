@@ -56,22 +56,33 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 	private static final ConfigData.Options EMPTY_LOCATION_OPTIONS = ConfigData.Options
 			.of(ConfigData.Option.IGNORE_IMPORTS);
 
+	// 都是根据构造函数来
+	// null
 	private final ConfigDataLocation location;
 
+	// null
 	private final ConfigDataResource resource;
 
+	// false
 	private final boolean fromProfileSpecificImport;
 
+	// PropertySource，也就是环境遍历配置源
 	private final PropertySource<?> propertySource;
 
+	// ConfigDataProperties，包装了 propertySource
+	// 主要的配置信息
 	private final ConfigurationPropertySource configurationPropertySource;
 
+	// null
 	private final ConfigDataProperties properties;
 
+	// ConfigData.Options.NONE
 	private final ConfigData.Options configDataOptions;
 
+	// ConfigData.Options.NONE
 	private final Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children;
 
+	// EXISTING
 	private final Kind kind;
 
 	/**
@@ -92,6 +103,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 			boolean fromProfileSpecificImport, PropertySource<?> propertySource,
 			ConfigurationPropertySource configurationPropertySource, ConfigDataProperties properties,
 			ConfigData.Options configDataOptions, Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children) {
+		// 构造函数设置属性
 		this.kind = kind;
 		this.location = location;
 		this.resource = resource;
@@ -373,8 +385,11 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 	 * @return a new {@link ConfigDataEnvironmentContributor} instance
 	 */
 	static ConfigDataEnvironmentContributor of(List<ConfigDataEnvironmentContributor> contributors) {
+		// 创建 map 集合
 		Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children = new LinkedHashMap<>();
+		// 添加阶段
 		children.put(ImportPhase.BEFORE_PROFILE_ACTIVATION, Collections.unmodifiableList(contributors));
+		// 返回 ConfigDataEnvironmentContributor
 		return new ConfigDataEnvironmentContributor(Kind.ROOT, null, null, false, null, null, null, null, children);
 	}
 
@@ -392,6 +407,9 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 				null, null);
 	}
 
+	// 工厂方法，创建一个包装了已有提供的配置源，返回 ConfigDataEnvironmentContributor 对象的方法
+	// 创建的这个对象，提供了对 propertySource 这个被包装者的访问
+	// 其实就是把 PropertySource 封装成 ConfigDataEnvironmentContributor，为了后边统一处理
 	/**
 	 * Factory method to create a contributor that wraps an {@link Kind#EXISTING existing}
 	 * property source. The contributor provides access to existing properties, but
@@ -495,6 +513,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 		 * @return the import phase
 		 */
 		static ImportPhase get(ConfigDataActivationContext activationContext) {
+			// 如果当前没有 profiles 则是 BEFORE_PROFILE_ACTIVATION，否则 AFTER_PROFILE_ACTIVATION
 			if (activationContext != null && activationContext.getProfiles() != null) {
 				return AFTER_PROFILE_ACTIVATION;
 			}

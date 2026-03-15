@@ -73,10 +73,12 @@ class OriginTrackedPropertiesLoader {
 	 * @throws IOException on read error
 	 */
 	List<Document> load(boolean expandLists) throws IOException {
+		// 创建 list
 		List<Document> documents = new ArrayList<>();
 		Document document = new Document();
 		StringBuilder buffer = new StringBuilder();
 		try (CharacterReader reader = new CharacterReader(this.resource)) {
+			// 循环遍历读取 reader
 			while (reader.read()) {
 				if (reader.isPoundCharacter()) {
 					if (isNewDocument(reader)) {

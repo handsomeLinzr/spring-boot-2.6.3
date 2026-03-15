@@ -49,8 +49,10 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
 
 	private int order = DEFAULT_ORDER;
 
+	// 获取要加载的类的过程，返回 ReflectionEnvironmentPostProcessorsFactory
 	private final Function<ClassLoader, EnvironmentPostProcessorsFactory> postProcessorsFactory;
 
+	// 构造函数，传进去  EnvironmentPostProcessorsFactory.fromSpringFactories(classLoader) 方法
 	/**
 	 * Create a new {@link EnvironmentPostProcessorApplicationListener} with
 	 * {@link EnvironmentPostProcessor} classes loaded via {@code spring.factories}.
@@ -85,6 +87,7 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ApplicationEnvironmentPreparedEvent) {
+			// 环境准备完成事件处理
 			onApplicationEnvironmentPreparedEvent((ApplicationEnvironmentPreparedEvent) event);
 		}
 		if (event instanceof ApplicationPreparedEvent) {
@@ -98,8 +101,17 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
 	private void onApplicationEnvironmentPreparedEvent(ApplicationEnvironmentPreparedEvent event) {
 		ConfigurableEnvironment environment = event.getEnvironment();
 		SpringApplication application = event.getSpringApplication();
+		// RandomValuePropertySourceEnvironmentPostProcessor
+		// SystemEnvironmentPropertySourceEnvironmentPostProcessor
+		// SpringApplicationJsonEnvironmentPostProcessor
+		// CloudFoundryVcapEnvironmentPostProcessor
+		// ConfigDataEnvironmentPostProcessor
+		// IntegrationPropertiesEnvironmentPostProcessor
+		// DebugAgentEnvironmentPostProcessor
 		for (EnvironmentPostProcessor postProcessor : getEnvironmentPostProcessors(application.getResourceLoader(),
+				// 实例化得到所有的 EnvironmentPostProcessor 类型的类
 				event.getBootstrapContext())) {
+			// 遍历调用 postProcessEnvironment 方法
 			postProcessor.postProcessEnvironment(environment, application);
 		}
 	}
@@ -118,8 +130,11 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
 
 	List<EnvironmentPostProcessor> getEnvironmentPostProcessors(ResourceLoader resourceLoader,
 			ConfigurableBootstrapContext bootstrapContext) {
+		// 类加载器
 		ClassLoader classLoader = (resourceLoader != null) ? resourceLoader.getClassLoader() : null;
+		// 加载到 EnvironmentPostProcessor 类型对象
 		EnvironmentPostProcessorsFactory postProcessorsFactory = this.postProcessorsFactory.apply(classLoader);
+		// 实例化 EnvironmentPostProcessor 类实例
 		return postProcessorsFactory.getEnvironmentPostProcessors(this.deferredLogs, bootstrapContext);
 	}
 

@@ -159,6 +159,7 @@ public enum CloudPlatform {
 	 * @return if the platform is active.
 	 */
 	public boolean isActive(Environment environment) {
+		// spring.main.cloud-platform
 		String platformProperty = environment.getProperty(PROPERTY_NAME);
 		return isEnforced(platformProperty) || (platformProperty == null && isDetected(environment));
 	}

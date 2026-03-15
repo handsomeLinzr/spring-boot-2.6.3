@@ -43,7 +43,9 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+		// 注册解析这个注解必要的基础 bean
 		registerInfrastructureBeans(registry);
+		//
 		registerMethodValidationExcludeFilter(registry);
 		ConfigurationPropertiesBeanRegistrar beanRegistrar = new ConfigurationPropertiesBeanRegistrar(registry);
 		getTypes(metadata).forEach(beanRegistrar::register);
@@ -56,7 +58,9 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 	}
 
 	static void registerInfrastructureBeans(BeanDefinitionRegistry registry) {
+		// 注册 ConfigurationPropertiesBindingPostProcessor
 		ConfigurationPropertiesBindingPostProcessor.register(registry);
+		// 注册 BoundConfigurationProperties
 		BoundConfigurationProperties.register(registry);
 	}
 

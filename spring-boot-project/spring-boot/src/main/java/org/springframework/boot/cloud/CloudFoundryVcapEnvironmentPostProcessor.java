@@ -118,6 +118,7 @@ public class CloudFoundryVcapEnvironmentPostProcessor implements EnvironmentPost
 
 	@Override
 	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+		// 默认 false
 		if (CloudPlatform.CLOUD_FOUNDRY.isActive(environment)) {
 			Properties properties = new Properties();
 			JsonParser jsonParser = JsonParserFactory.getJsonParser();

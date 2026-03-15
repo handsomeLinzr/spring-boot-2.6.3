@@ -36,24 +36,33 @@ import org.springframework.util.ClassUtils;
  */
 public class YamlPropertySourceLoader implements PropertySourceLoader {
 
+	// 配置文件后缀
 	@Override
 	public String[] getFileExtensions() {
 		return new String[] { "yml", "yaml" };
 	}
 
+	/**
+	 * 加载配置文件
+	 */
 	@Override
 	public List<PropertySource<?>> load(String name, Resource resource) throws IOException {
 		if (!ClassUtils.isPresent("org.yaml.snakeyaml.Yaml", getClass().getClassLoader())) {
 			throw new IllegalStateException(
 					"Attempted to load " + name + " but snakeyaml was not found on the classpath");
 		}
+		// 创建 OriginTrackedYamlLoader，解析 resource，得到解析结果，转成 map 数组
 		List<Map<String, Object>> loaded = new OriginTrackedYamlLoader(resource).load();
 		if (loaded.isEmpty()) {
+			// 如果没有解析结果，直接返回
 			return Collections.emptyList();
 		}
+
 		List<PropertySource<?>> propertySources = new ArrayList<>(loaded.size());
+		// 遍历 loaded 解析的结果
 		for (int i = 0; i < loaded.size(); i++) {
 			String documentNumber = (loaded.size() != 1) ? " (document #" + i + ")" : "";
+			// propertySources 中添加这个 propertySource 对应的配置
 			propertySources.add(new OriginTrackedMapPropertySource(name + documentNumber,
 					Collections.unmodifiableMap(loaded.get(i)), true));
 		}

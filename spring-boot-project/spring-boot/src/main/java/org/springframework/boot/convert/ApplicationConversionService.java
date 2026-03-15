@@ -211,8 +211,9 @@ public class ApplicationConversionService extends FormattingConversionService {
 		DefaultConversionService.addDefaultConverters(registry);
 		// 添加默认的格式化器，包括日期时间类型
 		DefaultFormattingConversionService.addDefaultFormatters(registry);
-		//
+		// 添加通用的格式化的转换器
 		addApplicationFormatters(registry);
+		// 添加通用的 application 转换器
 		addApplicationConverters(registry);
 	}
 
@@ -224,7 +225,9 @@ public class ApplicationConversionService extends FormattingConversionService {
 	 * ConversionService
 	 */
 	public static void addApplicationConverters(ConverterRegistry registry) {
+		// 添加限制字符串的转换器
 		addDelimitedStringConverters(registry);
+		// 添加类型转换器
 		registry.addConverter(new StringToDurationConverter());
 		registry.addConverter(new DurationToStringConverter());
 		registry.addConverter(new NumberToDurationConverter());
@@ -262,13 +265,17 @@ public class ApplicationConversionService extends FormattingConversionService {
 		registry.addConverter(new DelimitedStringToCollectionConverter(service));
 	}
 
+	// 添加默认通用的格式化转换器
 	/**
 	 * Add formatters useful for most Spring Boot applications.
 	 * @param registry the service to register default formatters with
 	 */
 	public static void addApplicationFormatters(FormatterRegistry registry) {
+		// char 数组转 String
 		registry.addFormatter(new CharArrayFormatter());
+		// inet 转地址
 		registry.addFormatter(new InetAddressFormatter());
+		// ios 格式时间
 		registry.addFormatter(new IsoOffsetFormatter());
 	}
 

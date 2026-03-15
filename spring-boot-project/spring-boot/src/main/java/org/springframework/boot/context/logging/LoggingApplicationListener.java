@@ -137,7 +137,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 	public static final String LOGGER_GROUPS_BEAN_NAME = "springBootLoggerGroups";
 
 	private static final Map<String, List<String>> DEFAULT_GROUP_LOGGERS;
-	static {
+	static {   // 默认的日志配置
 		MultiValueMap<String, String> loggers = new LinkedMultiValueMap<>();
 		loggers.add("web", "org.springframework.core.codec");
 		loggers.add("web", "org.springframework.http");
@@ -280,10 +280,10 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 			this.logFile.applyToSystemProperties();
 		}
 		this.loggerGroups = new LoggerGroups(DEFAULT_GROUP_LOGGERS);
-		initializeEarlyLoggingLevel(environment);
+		initializeEarlyLoggingLevel(environment);   // 日志级别
 		initializeSystem(environment, this.loggingSystem, this.logFile);
 		initializeFinalLoggingLevels(environment, this.loggingSystem);
-		registerShutdownHookIfNecessary(environment, this.loggingSystem);
+		registerShutdownHookIfNecessary(environment, this.loggingSystem);   // 注册关闭回调钩子函数
 	}
 
 	private LoggingSystemProperties getLoggingSystemProperties(ConfigurableEnvironment environment) {
@@ -402,7 +402,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 
 	private void registerShutdownHookIfNecessary(Environment environment, LoggingSystem loggingSystem) {
 		if (environment.getProperty(REGISTER_SHUTDOWN_HOOK_PROPERTY, Boolean.class, true)) {
-			Runnable shutdownHandler = loggingSystem.getShutdownHandler();
+			Runnable shutdownHandler = loggingSystem.getShutdownHandler();   // 获取关闭回调
 			if (shutdownHandler != null && shutdownHookRegistered.compareAndSet(false, true)) {
 				registerShutdownHook(shutdownHandler);
 			}

@@ -112,8 +112,8 @@ public class LogFile {
 	 * suitable properties
 	 */
 	public static LogFile get(PropertyResolver propertyResolver) {
-		String file = propertyResolver.getProperty(FILE_NAME_PROPERTY);
-		String path = propertyResolver.getProperty(FILE_PATH_PROPERTY);
+		String file = propertyResolver.getProperty(FILE_NAME_PROPERTY);   // 日志名称
+		String path = propertyResolver.getProperty(FILE_PATH_PROPERTY);   // 日志路径
 		if (StringUtils.hasLength(file) || StringUtils.hasLength(path)) {
 			return new LogFile(file, path);
 		}

@@ -43,6 +43,7 @@ import org.springframework.boot.logging.DeferredLogFactory;
 import org.springframework.core.log.LogMessage;
 import org.springframework.util.ObjectUtils;
 
+// 配置加载过程中所有配置源的集合对象
 /**
  * An immutable tree structure of {@link ConfigDataEnvironmentContributors} used to
  * process imports.
@@ -54,10 +55,13 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 
 	private static final Predicate<ConfigDataEnvironmentContributor> NO_CONTRIBUTOR_FILTER = (contributor) -> true;
 
+	// 构造函数设置进来
 	private final Log logger;
 
+	// 构造函数，ConfigDataEnvironmentContributor 内封装 6个配置源 + 2个默认的配置路径，也就是那个 contributors
 	private final ConfigDataEnvironmentContributor root;
 
+	// 构造函数
 	private final ConfigurableBootstrapContext bootstrapContext;
 
 	/**
@@ -91,14 +95,19 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 	 */
 	ConfigDataEnvironmentContributors withProcessedImports(ConfigDataImporter importer,
 			ConfigDataActivationContext activationContext) {
+		// 加载当前的步骤，是属于 BEFORE_PROFILE_ACTIVATION 还是 AFTER_PROFILE_ACTIVATION
 		ImportPhase importPhase = ImportPhase.get(activationContext);
+		// 日志追踪
 		this.logger.trace(LogMessage.format("Processing imports for phase %s. %s", importPhase,
 				(activationContext != null) ? activationContext : "no activation context"));
-		ConfigDataEnvironmentContributors result = this;
+		ConfigDataEnvironmentContributors  result = this;
 		int processed = 0;
 		while (true) {
+			// 获取下一个需要 import 的 contributor
+			// 这里一共有两个，就是那两个路径配置
 			ConfigDataEnvironmentContributor contributor = getNextToProcess(result, activationContext, importPhase);
 			if (contributor == null) {
+				// 最后没有了，则直接返回
 				this.logger.trace(LogMessage.format("Processed imports for of %d contributors", processed));
 				return result;
 			}
@@ -111,14 +120,22 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 			ConfigDataLocationResolverContext locationResolverContext = new ContributorConfigDataLocationResolverContext(
 					result, contributor, activationContext);
 			ConfigDataLoaderContext loaderContext = new ContributorDataLoaderContext(this);
+
+			// 获取要 import 的配置，如 optional:file:./;optional:file:./config/;optional:file:./config/*/
 			List<ConfigDataLocation> imports = contributor.getImports();
 			this.logger.trace(LogMessage.format("Processing imports %s", imports));
+
+			// 加载 import 的配置，加载到的结果在 imported 中，重点
 			Map<ConfigDataResolutionResult, ConfigData> imported = importer.resolveAndLoad(activationContext,
 					locationResolverContext, loaderContext, imports);
+
+			// 日志
 			this.logger.trace(LogMessage.of(() -> getImportedMessage(imported.keySet())));
 			ConfigDataEnvironmentContributor contributorAndChildren = contributor.withChildren(importPhase,
 					asContributors(imported));
-			result = new ConfigDataEnvironmentContributors(this.logger, this.bootstrapContext,
+
+			// 将结果添加到 result 中
+			result = new ConfigDataEnvironmentContributors(this.logger, this.bootstrapContext,  // 替换
 					result.getRoot().withReplacement(contributor, contributorAndChildren));
 			processed++;
 		}

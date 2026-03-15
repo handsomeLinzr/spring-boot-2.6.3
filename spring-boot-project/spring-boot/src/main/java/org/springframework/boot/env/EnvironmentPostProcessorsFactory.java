@@ -49,6 +49,7 @@ public interface EnvironmentPostProcessorsFactory {
 	 */
 	static EnvironmentPostProcessorsFactory fromSpringFactories(ClassLoader classLoader) {
 		return new ReflectionEnvironmentPostProcessorsFactory(classLoader,
+				// 获取自动装配下的所有 EnvironmentPostProcessor 类型的类
 				SpringFactoriesLoader.loadFactoryNames(EnvironmentPostProcessor.class, classLoader));
 	}
 

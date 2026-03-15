@@ -29,6 +29,7 @@ class StandardConfigDataReference {
 
 	private final ConfigDataLocation configDataLocation;
 
+	// 资源路径
 	private final String resourceLocation;
 
 	private final String directory;
@@ -37,6 +38,7 @@ class StandardConfigDataReference {
 
 	private final PropertySourceLoader propertySourceLoader;
 
+	// 构造函数标准的配置文件数据引用
 	/**
 	 * Create a new {@link StandardConfigDataReference} instance.
 	 * @param configDataLocation the original location passed to the resolver
@@ -49,11 +51,15 @@ class StandardConfigDataReference {
 	 * reference
 	 */
 	StandardConfigDataReference(ConfigDataLocation configDataLocation, String directory, String root, String profile,
+			// 后缀
 			String extension, PropertySourceLoader propertySourceLoader) {
 		this.configDataLocation = configDataLocation;
+		// 配置文件前缀，如 dev、test、pro 之类的，会自己变成   -dev、-test 之类的，没有则为空
 		String profileSuffix = (StringUtils.hasText(profile)) ? "-" + profile : "";
+		// 文件完整路径，如果有 profileSuffix 文件标识则加上
 		this.resourceLocation = root + profileSuffix + ((extension != null) ? "." + extension : "");
 		this.directory = directory;
+		// 文件
 		this.profile = profile;
 		this.propertySourceLoader = propertySourceLoader;
 	}
@@ -78,7 +84,11 @@ class StandardConfigDataReference {
 		return this.profile;
 	}
 
+	/**
+	 * 判断能否跳过
+	 */
 	boolean isSkippable() {
+		//    是否是 optional 的                        是否是直接文件不为空              是否文件标识不为空
 		return this.configDataLocation.isOptional() || this.directory != null || this.profile != null;
 	}
 

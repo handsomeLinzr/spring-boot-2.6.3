@@ -44,11 +44,14 @@ import org.springframework.util.ReflectionUtils;
  */
 public class Instantiator<T> {
 
+	// 优先参数多的在前
 	private static final Comparator<Constructor<?>> CONSTRUCTOR_COMPARATOR = Comparator
 			.<Constructor<?>>comparingInt(Constructor::getParameterCount).reversed();
 
+	// 用来实例化的类型
 	private final Class<?> type;
 
+	// 用来实例化的时候，填充的构造函数的参数可选值
 	private final Map<Class<?>, Function<Class<?>, Object>> availableParameters;
 
 	/**
@@ -68,15 +71,18 @@ public class Instantiator<T> {
 
 			@Override
 			public void add(Class<?> type, Object instance) {
+				// 设置 类型和值的映射
 				result.put(type, (factoryType) -> instance);
 			}
 
 			@Override
 			public void add(Class<?> type, Function<Class<?>, Object> factory) {
+				// 设置类型和方法的映射
 				result.put(type, factory);
 			}
 
 		});
+		// 返回收集的结果
 		return Collections.unmodifiableMap(result);
 	}
 
@@ -122,8 +128,10 @@ public class Instantiator<T> {
 
 	private T instantiate(TypeSupplier typeSupplier) {
 		try {
+			// 获取要实例化的类的类对象
 			Class<?> type = typeSupplier.get();
 			Assert.isAssignable(this.type, type);
+			// 实例化
 			return instantiate(type);
 		}
 		catch (Throwable ex) {
@@ -134,21 +142,33 @@ public class Instantiator<T> {
 
 	@SuppressWarnings("unchecked")
 	private T instantiate(Class<?> type) throws Exception {
+		// 获取所有的构造函数
 		Constructor<?>[] constructors = type.getDeclaredConstructors();
+		// 排序，按照构造函数，多的在前，少的在后
 		Arrays.sort(constructors, CONSTRUCTOR_COMPARATOR);
+		// 遍历所有构造函数
 		for (Constructor<?> constructor : constructors) {
+			// 根据构造函数的参数类型，获取参数
 			Object[] args = getArgs(constructor.getParameterTypes());
 			if (args != null) {
 				ReflectionUtils.makeAccessible(constructor);
+				// 实例化
 				return (T) constructor.newInstance(args);
 			}
 		}
 		throw new IllegalAccessException("Unable to find suitable constructor");
 	}
 
+	/**
+	 * 根据参数类型，获取参数
+	 * @param parameterTypes
+	 * @return
+	 */
 	private Object[] getArgs(Class<?>[] parameterTypes) {
+		// 创建一个数组，用来组装参数
 		Object[] args = new Object[parameterTypes.length];
 		for (int i = 0; i < parameterTypes.length; i++) {
+			// 根据参数类型，获取可用的参数
 			Function<Class<?>, Object> parameter = getAvailableParameter(parameterTypes[i]);
 			if (parameter == null) {
 				return null;

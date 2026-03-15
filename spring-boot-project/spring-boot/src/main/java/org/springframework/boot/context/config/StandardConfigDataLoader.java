@@ -39,20 +39,31 @@ public class StandardConfigDataLoader implements ConfigDataLoader<StandardConfig
 
 	private static final PropertySourceOptions NON_PROFILE_SPECIFIC = PropertySourceOptions.ALWAYS_NONE;
 
+	/**
+	 * 自定义加载配置文件引用的过程
+	 */
 	@Override
 	public ConfigData load(ConfigDataLoaderContext context, StandardConfigDataResource resource)
 			throws IOException, ConfigDataNotFoundException {
 		if (resource.isEmptyDirectory()) {
 			return ConfigData.EMPTY;
 		}
+		// 检查配置资源不为空
 		ConfigDataResourceNotFoundException.throwIfDoesNotExist(resource, resource.getResource());
+		// 获取配置资源的引用
 		StandardConfigDataReference reference = resource.getReference();
+
+		// 转成原始的资源类型
 		Resource originTrackedResource = OriginTrackedResource.of(resource.getResource(),
 				Origin.from(reference.getConfigDataLocation()));
+		// 组装当前资源的名称
 		String name = String.format("Config resource '%s' via location '%s'", resource,
 				reference.getConfigDataLocation());
-		List<PropertySource<?>> propertySources = reference.getPropertySourceLoader().load(name, originTrackedResource);
+		// 调用具体的资源加载器，加载资源，并封装成 PropertySource 集合
+		// 默认两个加载器，PropertiesPropertySourceLoader 和 YamlPropertySourceLoader
+		List<PropertySource<?>> propertySources = reference.getPropertySourceLoader().load(name, originTrackedResource);  // 解析配置文件，得到 PropertySource
 		PropertySourceOptions options = (resource.getProfile() != null) ? PROFILE_SPECIFIC : NON_PROFILE_SPECIFIC;
+		// 封装成 ConfigData 对象并返回
 		return new ConfigData(propertySources, options);
 	}
 

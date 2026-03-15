@@ -51,6 +51,7 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
 		super(NAME, source);
 	}
 
+	// 判断给的配置源是否来自 defaultProperties
 	/**
 	 * Return {@code true} if the given source is named 'defaultProperties'.
 	 * @param propertySource the property source to check
@@ -123,7 +124,7 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
 	 * given {@link MutablePropertySources}.
 	 * @param propertySources the property sources to update
 	 */
-	public static void moveToEnd(MutablePropertySources propertySources) {
+	public static void moveToEnd(MutablePropertySources propertySources) {  // 将 defaultProperties 放大最后，优先级最低
 		// 从环境配置中得到 defaultProperties 配置，并先移除
 		PropertySource<?> propertySource = propertySources.remove(NAME);
 		if (propertySource != null) {

@@ -67,7 +67,7 @@ public class BackgroundPreinitializer implements ApplicationListener<SpringAppli
 
 	private static final boolean ENABLED;
 
-	static {
+	static {  // true
 		ENABLED = !Boolean.getBoolean(IGNORE_BACKGROUNDPREINITIALIZER_PROPERTY_NAME) && !NativeDetector.inNativeImage()
 				&& Runtime.getRuntime().availableProcessors() > 1;
 	}

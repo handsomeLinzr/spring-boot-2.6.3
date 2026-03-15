@@ -79,9 +79,15 @@ class OriginTrackedYamlLoader extends YamlProcessor {
 		return new Yaml(constructor, representer, dumperOptions, loaderOptions, resolver);
 	}
 
+	/**
+	 * 加载配置信息
+	 */
 	List<Map<String, Object>> load() {
+		// 创建一个 list 集合
 		final List<Map<String, Object>> result = new ArrayList<>();
+		// 加载过程，加载到 result 中
 		process((properties, map) -> result.add(getFlattenedMap(map)));
+		// 返回这个 list 集合
 		return result;
 	}
 

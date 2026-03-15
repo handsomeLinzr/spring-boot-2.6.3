@@ -70,6 +70,7 @@ public final class ConfigDataLocation implements OriginProvider {
 		return this.value;
 	}
 
+	// 判断 value 是否是指定前缀
 	/**
 	 * Return if {@link #getValue()} has the specified prefix.
 	 * @param prefix the prefix to check
@@ -79,6 +80,7 @@ public final class ConfigDataLocation implements OriginProvider {
 		return this.value.startsWith(prefix);
 	}
 
+	// 去掉 prefix 前缀
 	/**
 	 * Return {@link #getValue()} with the specified prefix removed. If the location does
 	 * not have the given prefix then the {@link #getValue()} is returned unchanged.

@@ -2,6 +2,6 @@ server:
   port: 9090
   path: local
 as:
-  tx: true
+  tx: false
 my:
-  name: yml
+  name: yaml

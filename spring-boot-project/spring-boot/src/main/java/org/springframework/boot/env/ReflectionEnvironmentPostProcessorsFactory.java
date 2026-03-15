@@ -40,6 +40,7 @@ class ReflectionEnvironmentPostProcessorsFactory implements EnvironmentPostProce
 
 	private ClassLoader classLoader;
 
+	// 通过 SPI 要加载的类名称
 	private final List<String> classNames;
 
 	ReflectionEnvironmentPostProcessorsFactory(Class<?>... classes) {
@@ -62,13 +63,16 @@ class ReflectionEnvironmentPostProcessorsFactory implements EnvironmentPostProce
 			ConfigurableBootstrapContext bootstrapContext) {
 		Instantiator<EnvironmentPostProcessor> instantiator = new Instantiator<>(EnvironmentPostProcessor.class,
 				(parameters) -> {
+			        // 实例化时候的构造函数参数类型
 					parameters.add(DeferredLogFactory.class, logFactory);
 					parameters.add(Log.class, logFactory::getLog);
 					parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
 					parameters.add(BootstrapContext.class, bootstrapContext);
 					parameters.add(BootstrapRegistry.class, bootstrapContext);
 				});
+		// 实例化 classes 类
 		return (this.classes != null) ? instantiator.instantiateTypes(this.classes)
+				// 实例化所有类
 				: instantiator.instantiate(this.classLoader, this.classNames);
 	}
 

@@ -57,8 +57,10 @@ class SpringConfigurationPropertySource implements ConfigurationPropertySource {
 	private static final PropertyMapper[] SYSTEM_ENVIRONMENT_MAPPERS = { SystemEnvironmentPropertyMapper.INSTANCE,
 			DefaultPropertyMapper.INSTANCE };
 
+	// 被包装的配置源，其实就是 env 里的那个配置源
 	private final PropertySource<?> propertySource;
 
+	// 将配置源解析出来的配置，和 propertySource 对应
 	private final PropertyMapper[] mappers;
 
 	/**
@@ -134,6 +136,7 @@ class SpringConfigurationPropertySource implements ConfigurationPropertySource {
 		return this.propertySource.toString();
 	}
 
+	// 根据给定的配置源，创建一个 SpringConfigurationPropertySource
 	/**
 	 * Create a new {@link SpringConfigurationPropertySource} for the specified
 	 * {@link PropertySource}.
@@ -143,10 +146,12 @@ class SpringConfigurationPropertySource implements ConfigurationPropertySource {
 	 */
 	static SpringConfigurationPropertySource from(PropertySource<?> source) {
 		Assert.notNull(source, "Source must not be null");
+		// 从 source 这个属性配置中获取配置 map
 		PropertyMapper[] mappers = getPropertyMappers(source);
 		if (isFullEnumerable(source)) {
 			return new SpringIterableConfigurationPropertySource((EnumerablePropertySource<?>) source, mappers);
 		}
+		// 返回 SpringConfigurationPropertySource
 		return new SpringConfigurationPropertySource(source, mappers);
 	}
 

@@ -18,6 +18,7 @@ package org.springframework.boot.env;
 
 import org.apache.commons.logging.Log;
 
+import org.springframework.boot.ConfigurableBootstrapContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -52,6 +53,7 @@ public class RandomValuePropertySourceEnvironmentPostProcessor implements Enviro
 
 	@Override
 	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+		// 添加 logger 到环境中
 		RandomValuePropertySource.addToEnvironment(environment, this.logger);
 	}
 

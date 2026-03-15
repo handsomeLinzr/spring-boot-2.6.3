@@ -33,8 +33,10 @@ import org.springframework.util.SystemPropertyUtils;
  */
 public class PropertySourcesPlaceholdersResolver implements PlaceholdersResolver {
 
+	// 当前环境配置的配置源
 	private final Iterable<PropertySource<?>> sources;
 
+	// 占位符解析器
 	private final PropertyPlaceholderHelper helper;
 
 	public PropertySourcesPlaceholdersResolver(Environment environment) {

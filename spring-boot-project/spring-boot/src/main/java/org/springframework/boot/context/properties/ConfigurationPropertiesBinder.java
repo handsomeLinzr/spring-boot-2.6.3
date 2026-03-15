@@ -54,6 +54,7 @@ import org.springframework.core.env.PropertySources;
 import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
 
+// 内部类通过 ConfigurationPropertiesBindingPostProcessor 用来处理实际的 ConfigurationProperties 绑定
 /**
  * Internal class used by the {@link ConfigurationPropertiesBindingPostProcessor} to
  * handle the actual {@link ConfigurationProperties @ConfigurationProperties} binding.
@@ -192,12 +193,14 @@ class ConfigurationPropertiesBinder {
 
 	static void register(BeanDefinitionRegistry registry) {
 		if (!registry.containsBeanDefinition(FACTORY_BEAN_NAME)) {
+			// 注册 bd：ConfigurationPropertiesBinder.Factory
 			BeanDefinition definition = BeanDefinitionBuilder
 					.rootBeanDefinition(ConfigurationPropertiesBinder.Factory.class).getBeanDefinition();
 			definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 			registry.registerBeanDefinition(ConfigurationPropertiesBinder.FACTORY_BEAN_NAME, definition);
 		}
 		if (!registry.containsBeanDefinition(BEAN_NAME)) {
+			// 注册 bd：ConfigurationPropertiesBinder
 			BeanDefinition definition = BeanDefinitionBuilder
 					.rootBeanDefinition(ConfigurationPropertiesBinder.class,
 							() -> ((BeanFactory) registry)

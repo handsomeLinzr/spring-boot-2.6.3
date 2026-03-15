@@ -89,16 +89,23 @@ public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProces
 		return ORDER;
 	}
 
+	// 加载配置文件主入口，核心
 	@Override
 	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+		// 处理配置
 		postProcessEnvironment(environment, application.getResourceLoader(), application.getAdditionalProfiles());
 	}
 
+	// 核心处理，加载配置文件
 	void postProcessEnvironment(ConfigurableEnvironment environment, ResourceLoader resourceLoader,
 			Collection<String> additionalProfiles) {
 		try {
 			this.logger.trace("Post-processing environment to add config data");
+			// 资源解析器  DefaultResourceLoader
 			resourceLoader = (resourceLoader != null) ? resourceLoader : new DefaultResourceLoader();
+			// 获取配置文件，解析配置
+			// getConfigDataEnvironment 方法得到到了 ConfigDataEnvironment 配置环境
+			// 应用配置文件的过程
 			getConfigDataEnvironment(environment, resourceLoader, additionalProfiles).processAndApply();
 		}
 		catch (UseLegacyConfigProcessingException ex) {
@@ -109,8 +116,16 @@ public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProces
 		}
 	}
 
+	/**
+	 * 创建一个 ConfigDataEnvironment 对象，用来解析配置文件
+	 * @param environment
+	 * @param resourceLoader
+	 * @param additionalProfiles
+	 * @return
+	 */
 	ConfigDataEnvironment getConfigDataEnvironment(ConfigurableEnvironment environment, ResourceLoader resourceLoader,
 			Collection<String> additionalProfiles) {
+		// 创建 ConfigDataEnvironment 对象
 		return new ConfigDataEnvironment(this.logFactory, this.bootstrapContext, environment, resourceLoader,
 				additionalProfiles, this.environmentUpdateListener);
 	}
