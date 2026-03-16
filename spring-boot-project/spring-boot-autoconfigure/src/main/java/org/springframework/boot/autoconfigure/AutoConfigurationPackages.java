@@ -108,6 +108,7 @@ public abstract class AutoConfigurationPackages {
 
 		@Override
 		public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+			// 注册
 			register(registry, new PackageImports(metadata).getPackageNames().toArray(new String[0]));
 		}
 
@@ -167,6 +168,9 @@ public abstract class AutoConfigurationPackages {
 	 */
 	static final class BasePackages {
 
+		/**
+		 * 包扫描路径
+		 */
 		private final List<String> packages;
 
 		private boolean loggedBasePackageInfo;
@@ -206,19 +210,30 @@ public abstract class AutoConfigurationPackages {
 
 	static final class BasePackagesBeanDefinition extends GenericBeanDefinition {
 
+		// 包扫描路径，就 main 类
 		private final Set<String> basePackages = new LinkedHashSet<>();
 
+		/**
+		 * 创建一个 BasePackagesBeanDefinition，封装了 basePackages
+		 * 对应的 beanClass 是 BasePackages
+		 */
 		BasePackagesBeanDefinition(String... basePackages) {
 			setBeanClass(BasePackages.class);
 			setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 			addBasePackages(basePackages);
 		}
 
+		/**
+		 * 定义该 bd 的实例化方式
+		 */
 		@Override
 		public Supplier<?> getInstanceSupplier() {
 			return () -> new BasePackages(StringUtils.toStringArray(this.basePackages));
 		}
 
+		/**
+		 * 添加包扫描路径
+		 */
 		private void addBasePackages(String[] additionalBasePackages) {
 			this.basePackages.addAll(Arrays.asList(additionalBasePackages));
 		}

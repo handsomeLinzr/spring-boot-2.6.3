@@ -86,7 +86,7 @@ class ConfigDataImporter {
 			Profiles profiles = (activationContext != null) ? activationContext.getProfiles() : null;
 			// 获取得到对应的配置文件
 			List<ConfigDataResolutionResult> resolved = resolve(locationResolverContext, profiles, locations);
-			// 将上一部得到的所有配置文件引用，都进行解析
+			// 将上一步得到的所有配置文件引用，都进行解析
 			return load(loaderContext, resolved);
 		}
 		catch (IOException ex) {

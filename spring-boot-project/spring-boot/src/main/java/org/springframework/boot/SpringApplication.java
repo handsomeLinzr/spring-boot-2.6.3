@@ -219,6 +219,7 @@ public class SpringApplication {
 
 	// 从 Spring SPI 机制下获取到的所有 BootstrapRegistryInitializer 类型的类对象
 	// 在启动的时候进行加载和实例化并添加进来
+	// 在 createBootstrapContext 方法会遍历执行 initialize 初始化方法
 	private List<BootstrapRegistryInitializer> bootstrapRegistryInitializers;
 
 	// 扩展用，设置额外的 profile 配置文件标识
@@ -343,8 +344,9 @@ public class SpringApplication {
 			// 创建参数对象
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
 
-			// 3.创建环境 environment
+			// 3.创建环境 environment，读取配置文件
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, bootstrapContext, applicationArguments);
+
 			// 配置忽略的 bean 信息
 			configureIgnoreBeanInfo(environment);
 			// 获取可以打印的 Banner 对象，默认是 SpringBootBanner
@@ -357,12 +359,13 @@ public class SpringApplication {
 			context.setApplicationStartup(this.applicationStartup);
 
 			// 5.准备上下文处理
+			// 执行所有 ApplicationContextInitializer 的 initialize 方法
 			prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
 
 			// 6.调用 refresh方法，就来到 Spring 的核心方法 refresh
 			refreshContext(context);
 
-			// refresh 方法后置处理
+			// refresh 方法后置处理，默认空处理
 			afterRefresh(context, applicationArguments);
 
 			// 记录启动耗时
