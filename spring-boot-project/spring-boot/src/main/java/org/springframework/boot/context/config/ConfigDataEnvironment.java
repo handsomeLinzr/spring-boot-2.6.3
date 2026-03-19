@@ -229,6 +229,7 @@ class ConfigDataEnvironment {
 		// 这里一般添加两个，分别是对应两种路径，分别是
 		// optional:classpath:/;optional:classpath:/config/
 		// optional:file:./;optional:file:./config/;optional:file:./config/*/
+		// 如果是接入了外部配置文件，则需要配置 spring.config.import，然后这里就会加载到最前边
 		contributors.addAll(getInitialImportContributors(binder));
 		if (defaultPropertySource != null) {
 			this.logger.trace("Creating wrapped config data contributor for default property source");
@@ -251,7 +252,7 @@ class ConfigDataEnvironment {
 	// 添加配置字文件的默认位置
 	private List<ConfigDataEnvironmentContributor> getInitialImportContributors(Binder binder) {
 		List<ConfigDataEnvironmentContributor> initialContributors = new ArrayList<>();
-		//																		spring.config.import    空配置
+		// 导入远程配置文件用														spring.config.import    空配置
 		addInitialImportContributors(initialContributors, bindLocations(binder, IMPORT_PROPERTY, EMPTY_LOCATIONS));
 		addInitialImportContributors(initialContributors,
 				//                    spring.config.additional-location

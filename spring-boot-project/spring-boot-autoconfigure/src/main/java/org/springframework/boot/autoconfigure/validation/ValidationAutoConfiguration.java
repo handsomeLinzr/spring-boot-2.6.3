@@ -39,6 +39,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
+// 接口参数自动校验自动装配配置
 /**
  * {@link EnableAutoConfiguration Auto-configuration} to configure the validation
  * infrastructure.
@@ -49,6 +50,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(ExecutableValidator.class)
+// 在这个配置存在的情况下，才需要进行加载
 @ConditionalOnResource(resources = "classpath:META-INF/services/javax.validation.spi.ValidationProvider")
 @Import(PrimaryDefaultValidatorPostProcessor.class)
 public class ValidationAutoConfiguration {

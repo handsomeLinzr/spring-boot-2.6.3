@@ -31,6 +31,7 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.util.Assert;
 
+// 自动专配类的排序实现，根据 AutoConfigureOrder、AutoConfigureBefore、AutoConfigureAfter 来进行排序
 /**
  * Sort {@link EnableAutoConfiguration auto-configuration} classes into priority order by
  * reading {@link AutoConfigureOrder @AutoConfigureOrder},

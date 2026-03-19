@@ -59,6 +59,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 	private final Log logger;
 
 	// 构造函数，ConfigDataEnvironmentContributor 内封装 6个配置源 + 2个默认的配置路径，也就是那个 contributors
+	// （如果是有外部配置中心，则会再加上配置中心的这个 ）
 	private final ConfigDataEnvironmentContributor root;
 
 	// 构造函数
@@ -122,6 +123,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 			ConfigDataLoaderContext loaderContext = new ContributorDataLoaderContext(this);
 
 			// 获取要 import 的配置，如 optional:file:./;optional:file:./config/;optional:file:./config/*/
+			// 获取是 spring.config.import 对应的配置，指向远程配置中心
 			List<ConfigDataLocation> imports = contributor.getImports();
 			this.logger.trace(LogMessage.format("Processing imports %s", imports));
 
@@ -175,13 +177,18 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 			Map<ConfigDataResolutionResult, ConfigData> imported) {
 		List<ConfigDataEnvironmentContributor> contributors = new ArrayList<>(imported.size() * 5);
 		imported.forEach((resolutionResult, data) -> {
+			// 路径
 			ConfigDataLocation location = resolutionResult.getLocation();
+			// 对应的 resource
 			ConfigDataResource resource = resolutionResult.getResource();
+			// profile 文件标识
 			boolean profileSpecific = resolutionResult.isProfileSpecific();
 			if (data.getPropertySources().isEmpty()) {
+				// 没有配置，添加空的配置类型
 				contributors.add(ConfigDataEnvironmentContributor.ofEmptyLocation(location, profileSpecific));
 			}
 			else {
+				// 正常有配置数据，添加到 contributors 中
 				for (int i = data.getPropertySources().size() - 1; i >= 0; i--) {
 					contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(location, resource,
 							profileSpecific, data, i));
