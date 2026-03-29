@@ -1,3 +1,30 @@
+spring:
+  application:
+    name: my-test
+  cloud:
+    nacos:
+      enable: true  # 默认也是 true
+      # 与控制台登录一致；未开鉴权可删。getConfig 返回 null 时会打 WARN「is empty」
+      username: nacos
+      password: nacos
+      config:
+        server-addr: 127.0.0.1:8848
+        group: DEFAULT_GROUP
+        file-extension: yaml
+        # REMOTE：远程优先，可覆盖本地 profile 配置（如 application-dev.yml）；默认 LOCAL 则本地优先
+        preference: REMOTE
+  config:
+    import:
+      # 须与控制台 Data ID 完全一致；远程优先级由 spring.cloud.nacos.config.preference 控制
+      - nacos:my-test?group=DEFAULT_GROUP
+
+
+logging:
+  level:
+    com.alibaba.nacos: INFO
+    com.alibaba.cloud.nacos: INFO
+    com.alibaba.nacos.client: DEBUG
+
 server:
   port: 9090
   path: local

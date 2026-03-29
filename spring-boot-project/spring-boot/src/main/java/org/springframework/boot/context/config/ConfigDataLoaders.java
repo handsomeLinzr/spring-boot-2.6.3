@@ -49,7 +49,7 @@ class ConfigDataLoaders {
 
 	// loaders 资源的类型
 	// ConfigTreeConfigDataResource
-	// StandardConfigDataResource
+	// StandardConfigDataResource   NacosConfigDataResource
 	private final List<Class<?>> resourceTypes;
 
 	/**
@@ -62,7 +62,7 @@ class ConfigDataLoaders {
 			ClassLoader classLoader) {
 		this(logFactory, bootstrapContext, classLoader,
 				// ConfigTreeConfigDataLoader
-				// StandardConfigDataLoader
+				// StandardConfigDataLoader   nacos情况加了 NacosConfigDataLoader
 				SpringFactoriesLoader.loadFactoryNames(ConfigDataLoader.class, classLoader));
 	}
 

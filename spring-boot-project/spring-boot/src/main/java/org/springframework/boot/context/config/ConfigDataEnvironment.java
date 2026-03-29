@@ -435,7 +435,7 @@ class ConfigDataEnvironment {
 			Set<ConfigDataLocation> optionalLocations) {
 		// 校验
 		checkForInvalidProperties(contributors);
-		checkMandatoryLocations(contributors, activationContext, loadedLocations, optionalLocations);
+		checkMandatoryLocations(contributors, activationContext, loadedLocations, optionalLocations);  // 检查是否有配置未读取
 		// 获取环境配置
 		MutablePropertySources propertySources = this.environment.getPropertySources();
 		// 将解析的结果 contributors 添加到 propertySources 中
@@ -457,7 +457,7 @@ class ConfigDataEnvironment {
 		// 事件监听
 		this.environmentUpdateListener.onSetProfiles(profiles);
 	}
-
+    // 已有的->nacos->application-dev->application.properties->yml->ymal
 	private void applyContributor(ConfigDataEnvironmentContributors contributors,
 			ConfigDataActivationContext activationContext, MutablePropertySources propertySources) {
 		this.logger.trace("Applying config data environment contributions");
@@ -485,7 +485,7 @@ class ConfigDataEnvironment {
 			InvalidConfigDataPropertyException.throwOrWarn(this.logger, contributor);
 		}
 	}
-
+    // 检查是否有配置文件没有读取，有则调用 notFoundAction 处理
 	private void checkMandatoryLocations(ConfigDataEnvironmentContributors contributors,
 			ConfigDataActivationContext activationContext, Set<ConfigDataLocation> loadedLocations,
 			Set<ConfigDataLocation> optionalLocations) {

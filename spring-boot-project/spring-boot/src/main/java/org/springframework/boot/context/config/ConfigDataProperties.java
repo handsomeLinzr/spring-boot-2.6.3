@@ -105,7 +105,7 @@ class ConfigDataProperties {
 		String[] legacyProfiles = binder.bind(LEGACY_PROFILES_NAME, BINDABLE_STRING_ARRAY, legacyProfilesBindHandler)
 				.orElse(null);
 		ConfigDataProperties properties = binder.bind(NAME, BINDABLE_PROPERTIES, new ConfigDataLocationBindHandler())
-				.orElse(null);
+				.orElse(null);   // 获取 spring.config 配置
 		if (!ObjectUtils.isEmpty(legacyProfiles)) {
 			properties = (properties != null)
 					? properties.withLegacyProfiles(legacyProfiles, legacyProfilesBindHandler.getProperty())

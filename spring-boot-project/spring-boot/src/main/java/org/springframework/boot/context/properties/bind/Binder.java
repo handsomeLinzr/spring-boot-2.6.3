@@ -192,7 +192,7 @@ public class Binder {
 		}
 		ValueObjectBinder valueObjectBinder = new ValueObjectBinder(constructorProvider);
 		JavaBeanBinder javaBeanBinder = JavaBeanBinder.INSTANCE;
-		this.dataObjectBinders = Collections.unmodifiableList(Arrays.asList(valueObjectBinder, javaBeanBinder));
+		this.dataObjectBinders = Collections.unmodifiableList(Arrays.asList(valueObjectBinder, javaBeanBinder));   // 估计添加两个值对象的绑定类
 	}
 
 	/**

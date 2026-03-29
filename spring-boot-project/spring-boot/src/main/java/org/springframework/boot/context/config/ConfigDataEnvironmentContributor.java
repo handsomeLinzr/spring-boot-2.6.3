@@ -250,7 +250,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 				contributors, activationContext, this, true);
 		Binder binder = new Binder(sources, placeholdersResolver, null, null, null);
 		UseLegacyConfigProcessingException.throwIfRequested(binder);
-		ConfigDataProperties properties = ConfigDataProperties.get(binder);
+		ConfigDataProperties properties = ConfigDataProperties.get(binder);   // 获取 spring.config 配置
 		if (properties != null && this.configDataOptions.contains(ConfigData.Option.IGNORE_IMPORTS)) {
 			properties = properties.withoutImports();
 		}
@@ -268,9 +268,11 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 	 */
 	ConfigDataEnvironmentContributor withChildren(ImportPhase importPhase,
 			List<ConfigDataEnvironmentContributor> children) {
+		// 当前的 children
 		Map<ImportPhase, List<ConfigDataEnvironmentContributor>> updatedChildren = new LinkedHashMap<>(this.children);
 		updatedChildren.put(importPhase, children);
 		if (importPhase == ImportPhase.AFTER_PROFILE_ACTIVATION) {
+			// 如果当前是 AFTER_PROFILE_ACTIVATION 阶段，则需要从 updatedChildren 中检查是否有 PROFILE_SPECIFIC 类型的配置，有则需要放到前边
 			moveProfileSpecific(updatedChildren);
 		}
 		return new ConfigDataEnvironmentContributor(this.kind, this.location, this.resource,
@@ -281,14 +283,21 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 	private void moveProfileSpecific(Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children) {
 		List<ConfigDataEnvironmentContributor> before = children.get(ImportPhase.BEFORE_PROFILE_ACTIVATION);
 		if (!hasAnyProfileSpecificChildren(before)) {
+			// 判断在 before 中，是否有 PROFILE_SPECIFIC 类型的配置
+			// 没有则返回
 			return;
 		}
+		// 走到这里，说明有 PROFILE_SPECIFIC 类型的配置（如 nacos 设置了 preference: REMOTE，则会设置配置为 PROFILE_SPECIFIC）
+		// 创建一个 updatedBefore 列表
 		List<ConfigDataEnvironmentContributor> updatedBefore = new ArrayList<>(before.size());
 		List<ConfigDataEnvironmentContributor> updatedAfter = new ArrayList<>();
 		for (ConfigDataEnvironmentContributor contributor : before) {
+			// 遍历 before 的数据，找到其中的标识了 PROFILE_SPECIFIC 的配置，添加到 updatedAfter 中
 			updatedBefore.add(moveProfileSpecificChildren(contributor, updatedAfter));
 		}
-		updatedAfter.addAll(children.getOrDefault(ImportPhase.AFTER_PROFILE_ACTIVATION, Collections.emptyList()));
+		// 将原本的 AFTER_PROFILE_ACTIVATION 的配置加到后边
+		updatedAfter.addAll(children.getOrDefault(ImportPhase.AFTER_PROFILE_ACTIVATION, Collections.emptyList()));  // 添加原本的 AFTER_PROFILE_ACTIVATION 对应的配置，添加到后边
+		// 重新设置 BEFORE_PROFILE_ACTIVATION 和 AFTER_PROFILE_ACTIVATION
 		children.put(ImportPhase.BEFORE_PROFILE_ACTIVATION, updatedBefore);
 		children.put(ImportPhase.AFTER_PROFILE_ACTIVATION, updatedAfter);
 	}
@@ -318,7 +327,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 		for (ConfigDataEnvironmentContributor contributor : contributors) {
 			for (ImportPhase importPhase : ImportPhase.values()) {
 				if (contributor.getChildren(importPhase).stream()
-						.anyMatch((child) -> child.hasConfigDataOption(ConfigData.Option.PROFILE_SPECIFIC))) {
+						.anyMatch((child) -> child.hasConfigDataOption(ConfigData.Option.PROFILE_SPECIFIC))) {   // 判断是否有 PROFILE_SPECIFIC 标识的配置
 					return true;
 				}
 			}
@@ -439,7 +448,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 		ConfigData.Options options = configData.getOptions(propertySource);
 		ConfigurationPropertySource configurationPropertySource = ConfigurationPropertySource.from(propertySource);
 		return new ConfigDataEnvironmentContributor(Kind.UNBOUND_IMPORT, location, resource, profileSpecific,
-				propertySource, configurationPropertySource, null, options, null);
+				propertySource, configurationPropertySource, null, options, null);    // 从解析到的结果封装成对象，这里的 properties 传递 null
 	}
 
 	/**
@@ -547,7 +556,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 		}
 
 		@Override
-		public ConfigDataEnvironmentContributor next() {
+		public ConfigDataEnvironmentContributor next() {  // 重写了迭代的 next 方法，循环的时候拿到的是档期啊这个方法
 			ConfigDataEnvironmentContributor next = fetchIfNecessary();
 			if (next == null) {
 				throw new NoSuchElementException();
@@ -560,11 +569,11 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 			if (this.next != null) {
 				return this.next;
 			}
-			if (this.current.hasNext()) {
+			if (this.current.hasNext()) {  // 先拿 current
 				this.next = this.current.next();
 				return this.next;
 			}
-			if (this.children.hasNext()) {
+			if (this.children.hasNext()) {  // 再拿 child，拿到 children 的 next 赋值给 current，然后继续遍历
 				this.current = this.children.next().iterator();
 				return fetchIfNecessary();
 			}

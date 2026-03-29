@@ -279,7 +279,7 @@ public class StandardConfigDataLocationResolver
 						// directory + name 得到文件名
 						directory + name, profile, extension, propertySourceLoader);
 				if (!references.contains(reference)) {
-					// 添加到前边
+					// 添加到前边，后来负载前边的
 					references.addFirst(reference);
 				}
 			}

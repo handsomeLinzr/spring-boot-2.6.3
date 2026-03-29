@@ -113,7 +113,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 				return result;
 			}
 			if (contributor.getKind() == Kind.UNBOUND_IMPORT) {
-				ConfigDataEnvironmentContributor bound = contributor.withBoundProperties(result, activationContext);
+				ConfigDataEnvironmentContributor bound = contributor.withBoundProperties(result, activationContext);  // 处理
 				result = new ConfigDataEnvironmentContributors(this.logger, this.bootstrapContext,
 						result.getRoot().withReplacement(contributor, bound));
 				continue;
@@ -123,20 +123,21 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 			ConfigDataLoaderContext loaderContext = new ContributorDataLoaderContext(this);
 
 			// 获取要 import 的配置，如 optional:file:./;optional:file:./config/;optional:file:./config/*/
-			// 获取是 spring.config.import 对应的配置，指向远程配置中心
+			// 如果是 spring.config.import 对应的配置，指向远程配置中心，比如 nacos:my-test?group=DEFAULT_GROUP
 			List<ConfigDataLocation> imports = contributor.getImports();
 			this.logger.trace(LogMessage.format("Processing imports %s", imports));
 
-			// 加载 import 的配置，加载到的结果在 imported 中，重点
+			// 对 imports 的配置进行第一次解析，解析到的结果放到 imported 中
 			Map<ConfigDataResolutionResult, ConfigData> imported = importer.resolveAndLoad(activationContext,
 					locationResolverContext, loaderContext, imports);
 
 			// 日志
 			this.logger.trace(LogMessage.of(() -> getImportedMessage(imported.keySet())));
+			// 把 import 解析到的结果，同时也放到 children 中，循环中下次继续进行解析
 			ConfigDataEnvironmentContributor contributorAndChildren = contributor.withChildren(importPhase,
 					asContributors(imported));
 
-			// 将结果添加到 result 中
+			// 将结果添加到替换到 result 中
 			result = new ConfigDataEnvironmentContributors(this.logger, this.bootstrapContext,  // 替换
 					result.getRoot().withReplacement(contributor, contributorAndChildren));
 			processed++;
@@ -160,7 +161,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 	private ConfigDataEnvironmentContributor getNextToProcess(ConfigDataEnvironmentContributors contributors,
 			ConfigDataActivationContext activationContext, ImportPhase importPhase) {
 		for (ConfigDataEnvironmentContributor contributor : contributors.getRoot()) {
-			if (contributor.getKind() == Kind.UNBOUND_IMPORT
+			if (contributor.getKind() == Kind.UNBOUND_IMPORT  // 刚导入，还没绑定
 					|| isActiveWithUnprocessedImports(activationContext, importPhase, contributor)) {
 				return contributor;
 			}

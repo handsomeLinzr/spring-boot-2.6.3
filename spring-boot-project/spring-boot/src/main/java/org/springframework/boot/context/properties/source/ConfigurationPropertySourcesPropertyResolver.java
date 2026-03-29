@@ -85,12 +85,12 @@ class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResol
 	}
 
 	private Object findPropertyValue(String key) {
-		ConfigurationPropertySourcesPropertySource attached = getAttached();
+		ConfigurationPropertySourcesPropertySource attached = getAttached();   // 从 attach 获取，这里保存了所有的配置属性
 		if (attached != null) {
 			ConfigurationPropertyName name = ConfigurationPropertyName.of(key, true);
 			if (name != null) {
 				try {
-					ConfigurationProperty configurationProperty = attached.findConfigurationProperty(name);
+					ConfigurationProperty configurationProperty = attached.findConfigurationProperty(name);  // 获取对应的值
 					return (configurationProperty != null) ? configurationProperty.getValue() : null;
 				}
 				catch (Exception ex) {

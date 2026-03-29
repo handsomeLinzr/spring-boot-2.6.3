@@ -86,7 +86,7 @@ class ConfigDataImporter {
 			Profiles profiles = (activationContext != null) ? activationContext.getProfiles() : null;
 			// 获取得到对应的配置文件
 			List<ConfigDataResolutionResult> resolved = resolve(locationResolverContext, profiles, locations);
-			// 将上一步得到的所有配置文件引用，都进行解析
+			// 将上一步得到的所有配置文件引用，都进行解析，如果是 nacos，也是在这里进行连接
 			return load(loaderContext, resolved);
 		}
 		catch (IOException ex) {
@@ -128,7 +128,7 @@ class ConfigDataImporter {
 			List<ConfigDataResolutionResult> candidates) throws IOException {
 		Map<ConfigDataResolutionResult, ConfigData> result = new LinkedHashMap<>();
 		// 从后往前遍历配置文件的引用
-		for (int i = candidates.size() - 1; i >= 0; i--) {
+		for (int i = candidates.size() - 1; i >= 0; i--) {  // 从后往前遍历，前边的优先
 			ConfigDataResolutionResult candidate = candidates.get(i);
 			// 路径位置
 			ConfigDataLocation location = candidate.getLocation();
@@ -153,7 +153,7 @@ class ConfigDataImporter {
 						// 并添加到 loaded 和 loadedLocations 中，避免重复加载
 						this.loaded.add(resource);
 						this.loadedLocations.add(location);
-						result.put(candidate, loaded);
+						result.put(candidate, loaded);  // properties>yml>ymal
 					}
 				}
 				catch (ConfigDataNotFoundException ex) {

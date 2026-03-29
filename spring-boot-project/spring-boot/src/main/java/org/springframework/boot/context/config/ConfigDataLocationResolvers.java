@@ -58,7 +58,7 @@ class ConfigDataLocationResolvers {
 		this(logFactory, bootstrapContext, binder, resourceLoader, SpringFactoriesLoader
 				// 加载 ConfigDataLocationResolver 对应的名称
 				// ConfigTreeConfigDataLocationResolver
-				// StandardConfigDataLocationResolver
+				// StandardConfigDataLocationResolver   nacos 的情况下加了 NacosConfigDataLocationResolver
 				.loadFactoryNames(ConfigDataLocationResolver.class, resourceLoader.getClassLoader()));
 	}
 

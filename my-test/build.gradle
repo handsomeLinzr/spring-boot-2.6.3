@@ -13,5 +13,10 @@ application {
 dependencies {
     implementation(project(":spring-boot-project:spring-boot-starters:spring-boot-starter-web"))
 
+    // Spring Boot 2.4+ Config Data API：spring.config.import + nacos:，不启用 bootstrap
+    implementation("com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2021.0.5.0") {
+        exclude group: "org.springframework.cloud", module: "spring-cloud-starter-bootstrap"
+    }
+
     testImplementation(project(":spring-boot-project:spring-boot-starters:spring-boot-starter-test"))
 }
