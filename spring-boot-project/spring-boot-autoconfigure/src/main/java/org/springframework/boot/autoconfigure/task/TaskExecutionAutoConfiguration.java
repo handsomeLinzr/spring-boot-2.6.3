@@ -51,6 +51,8 @@ public class TaskExecutionAutoConfiguration {
 	 */
 	public static final String APPLICATION_TASK_EXECUTOR_BEAN_NAME = "applicationTaskExecutor";
 
+
+	// 默认的异步任务线程池构建者
 	@Bean
 	@ConditionalOnMissingBean
 	public TaskExecutorBuilder taskExecutorBuilder(TaskExecutionProperties properties,
@@ -75,7 +77,7 @@ public class TaskExecutionAutoConfiguration {
 	@Lazy
 	@Bean(name = { APPLICATION_TASK_EXECUTOR_BEAN_NAME,
 			AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
-	@ConditionalOnMissingBean(Executor.class)
+	@ConditionalOnMissingBean(Executor.class)   // 默认的异步任务线程池
 	public ThreadPoolTaskExecutor applicationTaskExecutor(TaskExecutorBuilder builder) {
 		return builder.build();
 	}

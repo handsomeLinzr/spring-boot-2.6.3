@@ -479,16 +479,22 @@ public class SpringApplication {
 	private void prepareContext(DefaultBootstrapContext bootstrapContext, ConfigurableApplicationContext context,
 			ConfigurableEnvironment environment, SpringApplicationRunListeners listeners,
 			ApplicationArguments applicationArguments, Banner printedBanner) {
+		// 设置环境
 		context.setEnvironment(environment);
+		// context 后置处理事件
 		postProcessApplicationContext(context);
+		// 调用所有的 ApplicationContextInitializer 执行初始化方法
 		applyInitializers(context);
+		// context 准备好了事件
 		listeners.contextPrepared(context);
+		// bootstrapContext 关闭
 		bootstrapContext.close(context);
 		if (this.logStartupInfo) {
 			logStartupInfo(context.getParent() == null);
 			logStartupProfileInfo(context);
 		}
 		// Add boot specific singleton beans
+		// 给 BeanFactory 注册参数
 		ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
 		beanFactory.registerSingleton("springApplicationArguments", applicationArguments);
 		if (printedBanner != null) {
@@ -498,6 +504,7 @@ public class SpringApplication {
 			((AbstractAutowireCapableBeanFactory) beanFactory).setAllowCircularReferences(this.allowCircularReferences);
 			if (beanFactory instanceof DefaultListableBeanFactory) {
 				((DefaultListableBeanFactory) beanFactory)
+						// 设置是否允许重复定义 bd
 						.setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
 			}
 		}
@@ -505,9 +512,12 @@ public class SpringApplication {
 			context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor());
 		}
 		// Load the sources
+		// 启动类
 		Set<Object> sources = getAllSources();
 		Assert.notEmpty(sources, "Sources must not be empty");
+		// 加载启动类
 		load(context, sources.toArray(new Object[0]));
+		// 触发监听器
 		listeners.contextLoaded(context);
 	}
 
@@ -810,6 +820,7 @@ public class SpringApplication {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Loading source " + StringUtils.arrayToCommaDelimitedString(sources));
 		}
+		// 创建一个 bd 加载器
 		BeanDefinitionLoader loader = createBeanDefinitionLoader(getBeanDefinitionRegistry(context), sources);
 		if (this.beanNameGenerator != null) {
 			loader.setBeanNameGenerator(this.beanNameGenerator);
@@ -820,6 +831,7 @@ public class SpringApplication {
 		if (this.environment != null) {
 			loader.setEnvironment(this.environment);
 		}
+		// 加载
 		loader.load();
 	}
 
@@ -890,9 +902,13 @@ public class SpringApplication {
 
 	private void callRunners(ApplicationContext context, ApplicationArguments args) {
 		List<Object> runners = new ArrayList<>();
+		// 添加所有的 ApplicationRunner 的 bean
 		runners.addAll(context.getBeansOfType(ApplicationRunner.class).values());
+		// 添加所有的 CommandLineRunner 的 bean
 		runners.addAll(context.getBeansOfType(CommandLineRunner.class).values());
+		// 排序
 		AnnotationAwareOrderComparator.sort(runners);
+		// 遍历并调用方法 callRunner 处理
 		for (Object runner : new LinkedHashSet<>(runners)) {
 			if (runner instanceof ApplicationRunner) {
 				callRunner((ApplicationRunner) runner, args);
@@ -903,6 +919,9 @@ public class SpringApplication {
 		}
 	}
 
+	/**
+	 * 调用 runner 的 run 方法
+	 */
 	private void callRunner(ApplicationRunner runner, ApplicationArguments args) {
 		try {
 			(runner).run(args);
@@ -912,6 +931,9 @@ public class SpringApplication {
 		}
 	}
 
+	/**
+	 * 调用 runner 的 run 方法，将参数 args 获取对应的 source
+	 */
 	private void callRunner(CommandLineRunner runner, ApplicationArguments args) {
 		try {
 			(runner).run(args.getSourceArgs());

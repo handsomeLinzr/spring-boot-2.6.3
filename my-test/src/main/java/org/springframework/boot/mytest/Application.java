@@ -18,12 +18,14 @@ package org.springframework.boot.mytest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * 使用 Spring Boot Config Data API：spring.config.import 的 dataId 须与 Nacos 控制台完全一致（例如 nacos:my-test）。
  * Nacos 2.x 需能访问 gRPC（主端口 + 1000）；支持 @RefreshScope。
  */
 @SpringBootApplication
+@EnableAsync
 public class Application {
 
 	public static void main(String[] args) {

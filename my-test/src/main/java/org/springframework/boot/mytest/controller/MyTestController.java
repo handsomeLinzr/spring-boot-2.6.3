@@ -1,5 +1,6 @@
 package org.springframework.boot.mytest.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,10 @@ public class MyTestController {
 
 	private static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+
+	@Autowired
+	private MyTestService myTestService;
+
 	@Value("${my.name}")
 	private String name;
 
@@ -30,6 +35,8 @@ public class MyTestController {
 	@GetMapping("/now")
 	public String now() {
 		System.out.println(name);
+		System.out.println(Thread.currentThread().getName() + "当前");
+		myTestService.asyncTest();
 		return YYYY_MM_DD_HH_MM_SS.format(LocalDateTime.now());
 	}
 
